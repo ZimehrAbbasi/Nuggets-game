@@ -6,7 +6,7 @@
 * [Functional decomposition into functions/modules](#Functional-decomposition-int-functions/modules)
 * [Major data structures](#Major-data-structures)
 * [High-level pseudo code](#High-level-pseudo-code)
-* [Testing plan](#Testing-plan,-includin-unit-tests,-integration-tests,-system-tests)
+* [Testing plan](##Testing-plan,-including-unit-tests,-integration-tests,-system-tests)
 
 ## User interface
 
@@ -107,25 +107,31 @@ ERROR [explanation]
 
 ## Major data structures
 * Spectator Set:
-    * A Set of all spectator ip addresses
+    * A Set of all spectator ip addresses [set of char*]
 
-* Players: A set to hold the 25 possible players
+* Players Set (A set to hold the 25 possible players)
     * A set that labels each player any letter from A to Z and stores the player struct associated with that letter.
 
-* Player Struct
+* Player Struct (Individual Player)
     * Player IP Address [String]
     * 2D int[][] representing seen grid items [int[][]]
     * X position of the player [int]
     * Y position of the player [int]
-    * Gold collected [int]
+    * Gold collected [int] (When the player picks up gold, take piece from gold struct in map and add amount of gold [int] to player)
 
-* Map struct
-    * Saves a master state of the map to send to players (updated when players move and join the game).
+* Map struct (Hold state representing entire map and all unclaimed Gold)
+    * Holds a string that saves a master state of the grid to send to players (updated when players move and join the game) [char*]
+    * Hold a set of Gold structs [set: struct Gold] (When the set of gold structs is empty the game can end)
+
+* Gold Struct (Individual Piece of Gold)
+    * X coordinate of gold piece [int]
+    * Y coordinate of gold piece [int]
+    * Amount of gold [int]
 
 
 ## High-level pseudo code
 
-```text
+```text=
 (Initialization)
 parse the command line, validate parameters, initialize other modules
 load map object into memory
@@ -143,22 +149,37 @@ while listening on port
             if all gold is collected
                 game is no longer in session
                 break
-    send updated map to all player
+    send updated map to all players
 ```
 
 ## Testing plan, including unit tests, integration tests, system tests.
 
 ### Unit Tests 
 * Testing the map module
-* Testing the player and spectator module as they're implemented
+    * Test write renders of grid to see that visibility is working
+    * Test creating map with different seed values and see that gold is place correctly
+* Testing the player and spectator module
+    * See that movement is consistent and working (no running out of bounds and other similar errors)
+    * See that visibility / DISPLAY method works well
 * Testing the message relays
+    * Make sure that messages aren't malformed (log messages to external file and compare with expected results) 
+    * Make sure that messages don't get sent to incorrect clients (Messages meant for a client don't get sent to a spectator)
 * Testing the parsing of the messages
+    * Make sure correct messages are interpreted appropriately.
+    * Make sure malformed messages do not stall the game.
+    * Make sure server's outgoing communication is correct and correctly formatted.
 
 
 ### Integration Tests
 * Testing if server runs properly
 * Testing with incorrect arguments, i.e. invalid number of arguments, string in place of seed, invalid file etc.
+* Test run of the game
+    * See that game terminates when expected (when all gold is collected)
+    * See that client / spectators are all recieving correct messages and are rendering maps correctly
 
 ### System Tests
 * Testing if there are any memory leaks using valgrind.
+    * Test modules separately. Make sure each module's data constructors and processors do not leak memory.
+    * Test modules together. Make sure collective functionality does not leak memory.
 * Testing for compiler warnings.
+    * Run make clean and make all to test for compilation warnings / errors
