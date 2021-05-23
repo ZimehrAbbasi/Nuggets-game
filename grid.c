@@ -86,10 +86,6 @@ bool grid_isPassage(grid_t* grid, int x, int y){
     return false;
 }
 
-bool grid_seedGold(grid* grid, gold_t* gold, int numPiles, int seed){
-    
-}
-
 bool grid_canMove(grid_t* master, player_t* player, char k){
 
 }
