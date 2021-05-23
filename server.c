@@ -7,7 +7,7 @@
 #include "grid.h"
 
 typedef struct gameState{
-    struct player allPlayers[25];
+    struct player *allPlayers;
     struct gold gameGold;
     struct grid master_grid; 
     int numRows;
@@ -74,11 +74,11 @@ static gameState_t* game_init(FILE* mapfile){
     if(gameState == NULL){
         return gameState;
     }else{
-        gold_t* gameGold = malloc(sizeof(gold_t));
-        gameState->gameGold = gameGold;
+        gameState->allPlayers = malloc(sizeof(player_t)*26);
+        gameState->gameGold = malloc(sizeof(gold_t));
         int numRows = file_numLines(mapfile);
         int numCols = numberOfColumns(mapfile);
-        gameState->master_grid = grid_init(FILE* mapfile, numRows, numCols);
+        gameState->master_grid = grid_init(mapfile, numRows, numCols);
         if(gameState->master_grid == NULL){
             fprintf(stderr, "Could not create grid...\n");
             exit(1);
@@ -105,6 +105,7 @@ static void game_close(gameState_t* gameState, *(close_func)(*void arg)){
             free(gameState->allPlayers[i]->address);
             free(gameState->allPlayers[i]);
         }
+        free(gameState->allPlayers);
         grid_t* grid = gameState->master_grid;
         for(int i = 0;i<rows;i++){
             free(grid->g[i]);
@@ -114,7 +115,7 @@ static void game_close(gameState_t* gameState, *(close_func)(*void arg)){
     }
 }
 
-void handleInput(voiid* arg){
+void handleInput(void* arg){
 
 }
 

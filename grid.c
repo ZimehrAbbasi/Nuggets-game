@@ -17,14 +17,23 @@ grid_t* grid_init(File* mapfile, int rows, int cols){
         return NULL;
     }
 
-    grid_t* grid  = malloc(sizeof(grid_t));
-    if(grid == NULL){
+    grid_t* Grid  = malloc(sizeof(grid_t));
+    if(Grid == NULL){
         return NULL;
     }
-
-    grid->g = malloc(rows);
+    char ** grid = Grid->g;
+    grid = malloc(rows);
     for(int i = 0;i<rows;i++){
-        grid->g[i] = malloc(cols);
+        grid[i] = malloc(cols);
+    }
+
+    char* line;
+    int j = 0;
+    while((line = file_readLine(mapfile) != NULL)){
+        for(int i = 0; i < strlen(line); i++){
+            grid[j][i] = line[i];
+        }
+        j += 1;
     }
 
     return grid;
@@ -77,6 +86,10 @@ bool grid_isPassage(grid_t* grid, int x, int y){
     return false;
 }
 
+bool grid_seedGold(grid* grid, gold_t* gold, int numPiles, int seed){
+
+}
+
 bool grid_canMove(grid_t* master, player_t* player, char k){
-    
+
 }
