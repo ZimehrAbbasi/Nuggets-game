@@ -83,6 +83,8 @@ static gameState_t* game_init(FILE* mapfile){
             fprintf(stderr, "Could not create grid...\n");
             exit(1);
         }
+        gameState->master_grid.rows = numRow;
+        gameState->master_grid.cols = numCols;
     }
     return gameState;
 }
@@ -112,16 +114,23 @@ static void game_close(gameState_t* gameState, *(close_func)(*void arg)){
     }
 }
 
+void handleInput(voiid* arg){
+
+}
+
 int main(const in argc, const char* argv[]){
 
-    int* seed = malloc(sizeof(int));
-    parseArgs(argc, argv, seed);
+    int* seed = 0;
+    parseArgs(argc, argv, &seed);
     FILE* fp  = fopen(argv[1], "r");
     gameState_t* gs = game_init(fp);
     fclose(fp);
 
-
-
-    free(seed);
+    int portnum = message_init(stderr);
+    if(portnum == 0){
+        fprintf(stderr, "Could not initialize message...\n");
+        exit(1);
+    }
+    message_loop();
     game_close(gs)
 }
