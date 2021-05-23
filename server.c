@@ -6,6 +6,12 @@
 #include "support/log.h"
 #include "grid.h"
 
+int MaxNameLength = 50;
+int MaxPlayers = 26;
+int GoldTotal = 250;
+int GoldMinNumPiles = 10;
+int GoldMaxNumPiles = 30;
+
 typedef struct gameState{
     struct player *allPlayers;
     struct gold gameGold;
@@ -23,7 +29,7 @@ typedef struct player{
 } player_t;
 
 typedef struct gold{
-    int totalGold[30];
+    int* totalGold;
     int numPiles;
     int index;
 } gold_t;
@@ -63,6 +69,29 @@ static int numberOfColumns(FILE* mapfile){
     return len;
 }
 
+static void gold_init(gold_t* gold, int numPiles){
+    int remainingGold = GoldTotal;
+    for(int i = 0; i < numPiles; i++){
+        goldTotal[i] = rand(1, remainingGold - (numPiles - i - 1))
+    }
+}
+
+static void gold_distribute(grid_t* Grid, gold_t* Gold){
+    char **grid = Grid->g;
+
+    i = 0;
+    int x, y;
+
+    while(i < Gold->numPiles){
+        x = rand(1, Grid->cols);
+        y = rand(1, Grid->rows);
+        if(grid[y][x] == '.'){
+            grid[x][y] = '*';
+            i += 1;
+        }
+    }
+}
+
 static gameState_t* game_init(FILE* mapfile){
 
     if(mapfile == NULL){
@@ -76,6 +105,10 @@ static gameState_t* game_init(FILE* mapfile){
     }else{
         gameState->allPlayers = malloc(sizeof(player_t)*26);
         gameState->gameGold = malloc(sizeof(gold_t));
+        int numPiles = rand(10, 30);
+        gameState->gameGold->totalGold = malloc(numPiles*sizeof(int));
+        gameState->gameGold->numPiles = numPiles;
+        gameState->gameGold->index = 0;
         int numRows = file_numLines(mapfile);
         int numCols = numberOfColumns(mapfile);
         gameState->master_grid = grid_init(mapfile, numRows, numCols);
@@ -85,6 +118,8 @@ static gameState_t* game_init(FILE* mapfile){
         }
         gameState->master_grid.rows = numRow;
         gameState->master_grid.cols = numCols;
+        gold_init(gameState->gameGold, numPiles);
+        gold_distribute(gameState->master_grid, gameState->gameGold);
     }
     return gameState;
 }
@@ -97,6 +132,7 @@ static void game_close(gameState_t* gameState, *(close_func)(*void arg)){
     }
 
     if(close_func == NULL){
+        free(gameState->gameGold->totalGold);
         free(gameState->gameGold);
         for(int i = 0; i < 26; i++){
             if(gameState->allPlayers == NULL){
@@ -123,12 +159,13 @@ int main(const in argc, const char* argv[]){
 
     int* seed = 0;
     parseArgs(argc, argv, &seed);
+    srand(*seed);
     FILE* fp  = fopen(argv[1], "r");
     gameState_t* gs = game_init(fp);
     fclose(fp);
 
-    int portnum = message_init(stderr);
-    if(portnum == 0){
+    int port = message_init(stderr);
+    if(port == 0){
         fprintf(stderr, "Could not initialize message...\n");
         exit(1);
     }
