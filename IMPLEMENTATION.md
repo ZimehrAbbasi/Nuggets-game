@@ -34,7 +34,7 @@ We used the following Data Structures to represent the state of out game and the
     * `numCols`: an integer to hold the number of columns on the map (`int`)
 
 ### Global variables
-We used a global statew vairable to keep track of changing game state (this GameState object is passed to the message_loop function).
+We used a global state vairable to keep track of changing game state (this GameState object is passed to the message_loop function).
 
 * **gameState** (`gameState_t`): A struct that contains all our game state information (See description further down). Is passed to handle_message() callback.
 
