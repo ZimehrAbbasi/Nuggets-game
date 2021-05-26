@@ -29,7 +29,7 @@ typedef struct game {
 } gamestate_t;
 
 gamestate_t*
-gamestate_init(char* mapFile)
+gamestate_init(FILE* mapFile)
 {
   gamestate_t* state = malloc(sizeof(gamestate_t));
   if (state == NULL) {
@@ -37,8 +37,7 @@ gamestate_init(char* mapFile)
     return NULL;
   }
 
-  FILE* fp = fopen(mapFile);
-  state->master = grid_init(mapFile, )
+  state->master = grid_init(mapFile);
 
 }
 
