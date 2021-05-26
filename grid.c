@@ -17,34 +17,57 @@ typedef struct grid {
   int cols;
 } grid_t;
 
-grid_t* grid_init(FILE* mapfile, int rows, int cols){
+grid_t* grid_init(FILE* mapfile) {
 
-  /* check validity of inputs */
-  if(mapfile == NULL || rows == 0 || cols == 0){
-    return NULL;
+  if (mapfile != NULL) {
+    
+    /* make sure we return to start of file in case of prior reads */
+    rewind(mapfile);
+
+    int rows = file_numLines(mapfile);
+    char* firstLine = file_readLine(mapfile);
+    int cols = strlen(firstLine);
+    free(firstLine);
+
+    /* reset */
+    rewind(mapfile);
+    
+    /* check validity of map */
+    if (rows == 0 || cols == 0) {
+      return NULL;
+    }
+
+    grid_t* grid  = malloc(sizeof(grid_t));
+    if (grid == NULL) {
+      return NULL; 
+    }
+
+    /* save rows, columns */
+    grid->rows = rows;
+    grid->cols = cols;
+
+    /* create map representation */
+    grid->g = malloc(rows);
+
+    /* allocate rows */
+    for(int i=0; i<rows; i++){
+      grid->g[i] = malloc(cols);
+    }
+
+    /* copy lines from file as rows */
+    int j = 0;
+    char* line;
+    while( (line = file_readLine(mapfile)) != NULL){
+      strcpy(grid->g[j++], line);
+    }
+
+    /* return grid */
+    return grid;
   }
 
-  grid_t* grid  = malloc(sizeof(grid_t));
-  if (grid == NULL){
-    return NULL; 
-  }
-  char** map = grid->g;
-  map = malloc(rows);
-  for(int i=0; i<rows; i++){
-    map[i] = malloc(cols);
-  }
-
-  char* line;
-  int j = 0;
-  while( (line = file_readLine(mapfile)) != NULL){
-    strcpy(grid->g[j++], line);
-      // for(int i = 0; i < strlen(line); i++){
-      //     grid[j][i] = line[i];
-      // }
-      // j += 1;
-  }
-
-  return grid;
+  /* in case pointer to map file is NULL */
+  fprintf(stderr, "Attempt to create grid with a NULL name of map file. Stop.\n");
+  return NULL;
 }
 
 char* grid_toString(grid_t* grid){
@@ -70,7 +93,19 @@ char*
 grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
 {
   char* map = grid_toString(grid);
-  for (int i = 0; i<25; i++)
+  int cols = grid_getColumns(grid);
+
+  player_t** players = gamestate_getPlayers(gamestate);
+  for (int i = 0; i<25; i++) {
+    if (players[i] != NULL) {
+      int x = player_getX(players[i]);
+      int y = player_getY(players[i]);
+      char letter = player_getLetter(players[i]);
+      int pos = cols*(y) + y + x;            /* (length of previous cols) + ("\n" ) + pos in current row */ 
+
+      map[pos] = letter;
+    }
+  }
 }
 
 bool

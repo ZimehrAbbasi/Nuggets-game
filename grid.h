@@ -19,7 +19,7 @@
 
 typedef struct grid grid_t;
 
-grid_t* grid_init(FILE* mapfile, int rows, int cols);
+grid_t* grid_init(FILE* mapfile);
 
 char* grid_toString(grid_t* Grid);
 
