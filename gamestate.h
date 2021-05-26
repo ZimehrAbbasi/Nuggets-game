@@ -14,7 +14,7 @@
 
 typedef struct game gamestate_t;
 
-gamestate_t* gamestate_init(char* mapFile);
+gamestate_t* gamestate_init(FILE* mapFile);
 
 gamestate_t** gamestate_getPlayers(gamestate_t* game);
 
