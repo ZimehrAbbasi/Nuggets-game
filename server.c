@@ -7,6 +7,7 @@
 #include "grid.h"
 
 int MaxNameLength = 50;
+int numPlayers = 0;
 int MaxPlayers = 26;
 int GoldTotal = 250;
 int GoldMinNumPiles = 10;
@@ -30,6 +31,7 @@ typedef struct player{
 
 typedef struct gold{
     int* totalGold;
+    int goldremaining;
     int numPiles;
     int index;
 } gold_t;
@@ -108,6 +110,7 @@ static gameState_t* game_init(FILE* mapfile){
         int numPiles = rand(10, 30);
         gameState->gameGold->totalGold = malloc(numPiles*sizeof(int));
         gameState->gameGold->numPiles = numPiles;
+        gameState->gameGold->goldremaining = GoldTotal;
         gameState->gameGold->index = 0;
         int numRows = file_numLines(mapfile);
         int numCols = numberOfColumns(mapfile);
