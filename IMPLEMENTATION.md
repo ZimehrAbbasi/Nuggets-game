@@ -12,7 +12,7 @@ We used the following Data Structures to represent the state of out game and the
 
 * Player Struct that holds player's message addresses and other heuristic info (`player_t`)
     * `realName`. Name representing player shown at the end of the game (`char*`)
-    * `playerGold`. Hold amount of gold collected by player (`int`)
+    * `playerGold`. Hold amount of gold collected by player (`int`) // aka *purse*
     * `letter`. Holds the leter (avatar) associated with the player on the grid (`char`).
     * `playerX`. Hold player's x location (`int`)
     * `playerY`. Hold player's y location (`int`)
@@ -20,14 +20,14 @@ We used the following Data Structures to represent the state of out game and the
     * `playerAddress`. Player address (`addr_t`)
 
 * Gold struct to keep track of gold (amounts)
-    * `totalGold` holds amnt of gold in each gold pile `int[numGoldPiles]`
+    * `totalGold` holds amnt of gold in each gold pile `int[numGoldPiles]` // name is not a good fit; consider `goldInPile`
     * `numPiles` holds total number of gold piles `int`
     * `remainingGold` holds the amount of gold left on the map `int`
-    * `index` holds index into gold pile array `int` (Game terminates when this index is equal to totalNumerOfGoldPiles - 1 as at that point all gold will have been collected)
+    * `index` holds index into gold pile array `int` (Game terminates when this index is equal to totalNumerOfGoldPiles - 1 as at that point all gold will have been collected) // name 'index' is a bit vauge
 
 * Game state struct that contains all aspects of the game (grid, gold, players, etc.). (`gameState_t`)
     * `spectator`: Address of the spectator watching the game. Is initially a no_addr(), but is changed to the address of whatever new client connects as a spectator. (`addr_t`)
-    * `allPlayers` is a player array (size 25) that holds pointers to all players in the game (`player_t[]`)
+    * `allPlayers` is a player array (size 25) that holds pointers to all players in the game (`player_t[]`) // why [25] not [26]?
     * `gameGold` is a gold struct that holds information about the gold in the game. (`gold_t`)
     * `masterGrid`. Master grid (with all players and gold pieces visible). This will be what is shown to the SPECTATOR. (`grid_t`)
     * `numRows`: an integer to hold the number of rows on the map (`int`)
@@ -41,7 +41,7 @@ We used a global state vairable to keep track of changing game state (this GameS
 ## Modules and associated function prototypes
 The following is a list of the modules we plan to break out nuggets game into. 
 ### File module (libcs50)
-We are using the file_readLines() and file_readLine() functions from the file.h in the libcs0 module.
+We are using the file_numLines() and file_readLine() functions from the file.h in the libcs50 module.
 <br/>
 
 ### Player module
@@ -188,8 +188,9 @@ Handle Message is responsible for:
     * Return a ERROR message to the client
 
 **Pseudocode**
+
 ```c=
-    Split message into tokens
+    Split message into tokens // not strictly necessary
         in the case of a "PLAY" message
             use onPlay(from_address)
                 
@@ -233,7 +234,9 @@ Handle Message is responsible for:
 ```
 #### void onKey(char* tokens[], addr_t* from_address)
 onKey is a callback that handles the KEY message from the client.
+
 ```c=
+// I don't think you mean to find by "key", you mean find by "address"
 // Get player associated with key
 player_t currentPlayer = findPlayerByKey(from_address);
 
@@ -245,6 +248,7 @@ if grid_canMove(gameState.masterGrid, current_player, k):
 
 #### void onSpectate(addr_t* from_address)
 onSpectate is a callback that handles when the SPECTATE message is sent to the server. Kicks out previous spectator (initial spectator is message_noAddr) with a QUIT message and replaces them with a new spectator address.
+
 ```c=
 message_send(gameState.spectator, "QUIT a new spectator has entered")
 gameState.spectator = from_address
@@ -252,6 +256,7 @@ gameState.spectator = from_address
 
 #### void onPlay(addr_t* from_address)
 OnPlay is a callback that handles the case when a PLAY message is sent to the server. Creates a new player instance and handles errors as neccesary.
+
 ```c=
 if NumPlayers < MaxPlayers - 1
     Create new player obejct
@@ -270,6 +275,7 @@ else
 
 #### char* convertMasterGridToString()
 Converts the player grid into a sendable string and adds player locations to the string
+
 ```c=
 Create new temp grid
 
@@ -284,6 +290,7 @@ Convert newly created tempGrid to a string
 
 #### char* convertPlayerGridToString(player_t* player)
 Converts the player grid into a sendable string and adds player locations to the string
+
 ```c=
 
 playerGrid = player.playerGrid
@@ -297,6 +304,7 @@ Convert newly created tempGrid to a string
 
 #### bool isGameEnded()
 Returns a boolean stating whether or not the game is over (whether all gold has been collected)
+
 ```c=
 int currentGoldIndex = gameState.gameGold.index
 int numGoldPiles = gameState.gameGold.numPiles
@@ -309,6 +317,7 @@ else
 
 #### char* formattedLeaderboard()
 Returns a formatted leaderboard of all players and the amount of gold they collected.
+
 ```c=
 create a string finalMessage
 for player in gameState.allPlayers
@@ -319,12 +328,14 @@ return finalMessage
 
 #### int countRemainingGold()
 Uses the the gameState's `gold` field to calculate the remaining amount of gold
+
 ```c=
 return remainingGold
 ```
 
 #### void sendGoldToPlayer(int amount_collected, player_t* player)
 Sends the GOLD message to the specified player.
+
 ```c=
 remainingGold = calcRemainingGold();
 message_send(player.playerAddress, "GOLD " + amount_collected + " " + player.playerGold + " " + remainingGold)
@@ -332,13 +343,17 @@ message_send(player.playerAddress, "GOLD " + amount_collected + " " + player.pla
 
 #### void sendGoldToSpectaor(addr_t* spectator)
 Sends the GOLD message to the spectator
+
 ```c=
 message_send(spectator, "GOLD " + 0 + " " + 0 + " " + countRemainingGold)
 ```
 
 
 #### player_t* findPlayerByKey(addr_t address)
+> would better be called findPlayerByAddress()
+
 Returns the player associated with a given addr_t object
+
 ```c=
 for player in gameState.allPlayers
     if player.playerAddress == address
@@ -349,15 +364,24 @@ return NULL
 ```
 
 #### void gold_init(gold_t* gold, int numPiles)
+> please follow CS50 naming guidelines
+
 Initializes the gold struct with the total number of gold piles and allocates a random amount of gold into each pile [a "pile" is an index into the gameState's gameGold array].
+
 ```c=
 set space for goldTotal array
 for(int i = 0; i < numPiles; i++)
     goldTotal[i] = rand(1, GoldTotal - (numPiles - i - 1))
+    // is goldTotal an array and GoldTotal is a number?
+    // very confusing!  rename the array.
+    // also, I don't think that code will produce correct amounts of gold
 ```
 
 #### void gold_distribute(grid_t* Grid, gold_t* Gold)
+> please follow CS50 naming guidelines
+
 Seeds the map with gold piles, distributing them randomly according to the number and value of gold given by the seed number.
+
 ```c
 grid_t grid = gameState.gameGrid
 i = 0;
@@ -372,7 +396,10 @@ while(i < numPiles)
 ```
 
 #### bool checkPointContainsPlayer(int x, int y)
+> maybe isPlayerAt(x,y)?
+
 Returns whether there is a player at the given coordinate
+
 ```c=
 for player in gameState.allPlayers:
     if player.player_x == x && player.player_y == y:
@@ -383,6 +410,7 @@ return false
 
 #### void getPlayerSpawnPos(grid_t* grid, int* x, int* y)
 Puts the x and y coordinates of a random (untaken) dot position, into the int pointers.
+
 ```c=
 bool isLooking = true;
 while isLooking
@@ -414,8 +442,8 @@ void grid_calcVisibility(game_state_t* gameState, player_t* player)
 
 #### grid_t* grid_init(FILE* mapFile, int numRows, int numCols)
 Given a function pointer to a map file and a game state, loads a map into the grid.
-```c=
 
+```c=
 allocate space for grid struct
 allocate space for each element in grid
 int x = 0;
@@ -429,6 +457,7 @@ return grid struct
 
 #### grid_toString(`grid_t*`)
 Converts a given grid object to a sendable (multi-line) string for sending over the network
+
 ```c=
 allocate memory for string rep. of grid
 for row in grid
@@ -438,6 +467,7 @@ for row in grid
 
 #### bool grid_isWall(grid_t* master, int x, int y)
 Returns whether the given coordinate is a wall or not.
+
 ```c=
 if point in master grid is '|' or '-' or '+' or ' ':
     return true;
@@ -446,6 +476,7 @@ else
 ```
 
 #### bool grid_isPlayer(game_t* gameState, grid_t* master, int x, int y)
+
 ```c=
 // Returns whether the given space is taken by a player.
 for each player in gameState.allPlayers
@@ -456,6 +487,7 @@ return false
 
 #### bool grid_isGold(grid_t* master, int x, int y)
 Returns whether the given coordinate contains a gold piece or not
+
 ```c=
 if master[y][x] is "*"
     return true
@@ -464,7 +496,11 @@ else
 ```
 
 #### bool grid_isDot(grid_t* master, int x, int y)
+> use language of the spec: `grid_isRoomSpot`.
+> we happen to represent room spots with '.' but the game calls them "room spots".
+
 Returns whether the given coordinate contains a dot or not
+
 ```c=
 if master[y][x] is "."
     return true
@@ -474,6 +510,7 @@ else
 
 #### bool grid_isPassage(grid_t* master, int x, int y)
 Returns whether the point in the in the map is a passage.
+
 ```c=
 if master[y][x] is '#'
     return true
@@ -483,6 +520,8 @@ else
 
 #### bool grid_canMove(grid_t* master, player_t* player, char k)
 Returns whether the player can move to a certain point
+> there is no 'certain point' in the parameter list
+
 ```c=
 char letter = ...;
 switch (letter) {
@@ -495,6 +534,10 @@ default:  ... code for letter not matching any case above.
 
 #### void grid_movePlayer(game_state_t* gameState, player_t* player, int x, int y)
 Moves the player to a specified position, updating the amount of gold in the player's purse / in the game if neccesary. Also updates master map with new player locations. (Assumes that grid_canMove was called prior and returned true. i.e. We know that we are moving to a valid point)
+
+>maybe this should return `bool` so it could be used in a loop,
+>to support sprinting in a given direction?
+
 ```c=
 set master to gameState.grid
 set gameGold to gameState.gold

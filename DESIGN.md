@@ -188,3 +188,4 @@ while listening on port
 * Zimehr: Grid module, player module, and associated unit tests.
 * Alphonso: Driver module (Handle Message, onKey, onSpectate, onPlay, isGameEnded, etc.) and associated unit tests. Will write a bash script and log functions to show that data is passing through the "handleMessage()" and associate callback functions appropriately.
 * Amittai: System and integration tests, including automation of memory tests and tests for collective functionality of the separate pieces of the system, handling Makefile dependencies, etc.
+> so Amittai is only testing? no coding of the game itself?
