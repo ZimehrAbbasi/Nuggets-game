@@ -103,5 +103,6 @@ main(int argc, const char* argv[])
   }
 
   /* if all tests are passed, return 0 */ 
+  printf("All tests passed!\n");
   return SUCCESS;
 }
