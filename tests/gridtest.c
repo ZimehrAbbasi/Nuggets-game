@@ -42,12 +42,28 @@ main(int argc, const char* argv[])
     exit(INVALID_FILE);
   }
 
+
   /* load the grid */
   grid_t* testGrid;
   if ( (testGrid = grid_init(fp)) == NULL) {
     fprintf(stderr, "Error creating grid.\n");
+    fclose(fp);
     exit(INVALID_GRID);
   }
+
+  if (grid_getRows(testGrid) != file_numLines(fp)) {
+    fprintf(stderr, "Error: number of rows in grid and does not match that in original file.\n");
+  }
+  char* line;
+  if ( (line = file_readLine(fp)) != NULL) {
+    if (grid_getCols(testGrid) != strlen(line)) {
+      fprintf(stderr, "Error: number of columns in grid and does not match that in original file.\n");
+    }
+    free(line);
+  }
+
+  /* close FILE */
+  fclose(fp);
 
   /* print string representation of grid */
   char* stringifiedGrid;
