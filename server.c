@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <string.h>
 #include "support/file.h"
 #include "support/message.h"
 #include "support/log.h"
@@ -161,3 +162,38 @@ game_close(gamestate_t* gameState)
 // void handleInput(void* arg){
 
 // }
+
+void 
+parseMessage (char* message)
+{
+  /* init position in tokens */
+  int pos = 0;
+
+  /* allocate memory for char pointers, max = strlen */
+  char** tokens = calloc(strlen(message), sizeof(char*));
+
+  char* token = strtok(message, " ");
+
+  /* while next token is not NULL 
+     save it and get next token */
+  while (token != NULL) {
+    tokens[pos++] = malloc(sizeof(token));
+    strcpy(tokens[pos-1], token);
+    token = strtok(NULL, " ");
+  }
+}
+
+void
+deleteParsedMessage(char** parsedMessage)
+{
+  if (parsedMessage != NULL) {
+
+    /* step through the tokens and free each token */
+    for (int i = 0; parsedMessage[i] != NULL; i++) {
+      free(parsedMessage[i]);
+    }
+
+    /* free the holder */
+    free(parsedMessage);
+  }
+}
