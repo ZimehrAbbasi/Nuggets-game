@@ -17,16 +17,7 @@
 #include "grid.h"
 #include "gold.h"
 #include "spectator.h"
-
-typedef struct game {
-  grid_t* master;               /* master grid */
-  spectator_t* spectator;       /* single spectator -- is NULL if no spectator in game */ 
-  
-  player_t* players[26];        /* array of players */
-  player_t* prevplayers[26];    /* track previous players in the game */
-  int players_seen;             /* track players seen -- whether in game or left */
-  grid_t* playerGrids[26];      /* player grids */
-} gamestate_t;
+#include "gamestate.h"
 
 gamestate_t*
 gamestate_init(FILE* mapFile)
@@ -37,8 +28,39 @@ gamestate_init(FILE* mapFile)
     return NULL;
   }
 
-  state->master = grid_init(mapFile);
+  // Initialize grid field
+  gamestate_initGrid(state, mapFile);
 
+  // Initialize gold field
+  gamestate_initGold(state);
+
+  // Initialize player array field
+  gamestate_initPlayers(state);
+
+  // Initialize spectator field
+  gamestate_initSpectator(state);
+
+  return state;
+}
+
+static void 
+gamestate_initPlayers(gamestate_t* state){
+  *(state->players) = malloc(sizeof(player_t) * 26);
+}
+
+static void 
+gamestate_initGold(gamestate_t* state){
+  state->gameGold = gold_init(26);
+}
+
+static void
+gamestate_initGrid(gamestate_t* state, FILE* mapFile){
+  state->masterGrid = grid_init(mapFile);
+}
+
+static void
+gamestate_initSpectator(gamestate_t* state){
+  state->spectator = NULL;
 }
 
 gamestate_t**

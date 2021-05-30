@@ -14,21 +14,14 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "gold.h"
 #include "grid.h"       /* grid module */
 #include "player.h"     /* player module */
-
 /******** static function prototypes *******/
 static int randomInt(int lower, int upper);
 
 /* module constants */
 static const int TOTALGOLD = 250;
-
-typedef struct gold {
-  int* goldCounter;
-  int numPiles;
-  int index;
-} gold_t;
-
 
 /************** Exported functions ***************/
 gold_t*

@@ -16,10 +16,6 @@
 #include "message.h"    /* message module */
 #include "spectator.h"  /* self */
 
-typedef struct spectator {
-  addr_t address;
-} spectator_t;
-
 spectator_t* 
 spectator_new(addr_t address) 
 {

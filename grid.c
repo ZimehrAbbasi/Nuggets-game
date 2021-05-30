@@ -11,12 +11,6 @@
 #include "gamestate.h"    /* gamestate module */
 #include "grid.h"         /* self */
 
-typedef struct grid {
-  char **g;
-  int rows;
-  int cols;
-} grid_t;
-
 grid_t* grid_init(FILE* mapfile) {
 
   if (mapfile != NULL) {

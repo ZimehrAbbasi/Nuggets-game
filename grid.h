@@ -17,7 +17,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct grid grid_t;
+typedef struct grid {
+  char **g;
+  int rows;
+  int cols;
+} grid_t;
 
 grid_t* grid_init(FILE* mapfile);
 
