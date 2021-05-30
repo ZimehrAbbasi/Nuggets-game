@@ -163,14 +163,21 @@ game_close(gamestate_t* gameState)
 
 // }
 
-void 
+char**
 parseMessage (char* message)
 {
+  if (message == NULL) {
+    return NULL;
+  }
   /* init position in tokens */
   int pos = 0;
 
   /* allocate memory for char pointers, max = strlen */
   char** tokens = calloc(strlen(message), sizeof(char*));
+
+  if (tokens == NULL) {
+    return NULL;
+  }
 
   char* token = strtok(message, " ");
 
@@ -181,6 +188,7 @@ parseMessage (char* message)
     strcpy(tokens[pos-1], token);
     token = strtok(NULL, " ");
   }
+  return tokens;
 }
 
 void
