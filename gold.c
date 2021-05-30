@@ -88,8 +88,10 @@ gold_distribute(grid_t* grid, gold_t* gold)
 
 /**
  * @brief: Function to generate a number within a range.
- * repeatedly calls rand() until value
- * between the lower and upper bound is generated.
+ * calls rand() to generate a random number 
+ * then bounds it to expectate range using mod operator.
+ * This is handy because rand() doesn't take any arguments
+ * and generates unbounded values
  * 
  * @param lower: lower bound, inclusive
  * @param upper: upper bound, inclusive
@@ -99,10 +101,9 @@ static int
 randomInt(int lower, int upper)
 {
   if (lower < upper) {
-    int num = rand();
-    while (num < lower || num > upper) {
-      num = rand();
-    }
+    int num = lower;
+    int randomNumber = rand();
+    num += randomNumber % (upper - lower);
     return num;
   }
   fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");

@@ -254,11 +254,19 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
 
         /* add spectator */
         if (numTokens == 1 && (strcmp(tokens[0], "SPECTATE") == 0) ) {
+
+          /* add spectator to game */
           gamestate_addSpectator(state, fromAddress);
+
+          /* get number of rows, columns in grid */
           int rows = state->masterGrid->rows;
           int cols = state->masterGrid->cols;
+
+          /* generate init message */
           char initMessage[100];                            /* No need to malloc; only used once */
           sprintf(initMessage, "GRID %d, %d", rows, cols);
+
+          /* send init message to spectator */
           spectator_send(state->spectator, initMessage);
         }
         else {
@@ -376,16 +384,16 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
     deleteTokens(tokens);
     free(message);
   }
-
-  
 }
 
 /**************** Static Functions ******************/
 
 /**
  * @brief: Function to generate a number within a range.
- * repeatedly calls rand() until value
- * between the lower and upper bound is generated.
+ * calls rand() to generate a random number 
+ * then bounds it to expectate range using mod operator.
+ * This is handy because rand() doesn't take any arguments
+ * and generates unbounded values
  * 
  * @param lower: lower bound, inclusive
  * @param upper: upper bound, inclusive
@@ -395,10 +403,9 @@ static int
 randomInt(int lower, int upper)
 {
   if (lower < upper) {
-    int num = rand();
-    while (num < lower || num > upper) {
-      num = rand();
-    }
+    int num = lower;
+    int randomNumber = rand();
+    num += randomNumber % (upper - lower);
     return num;
   }
   fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
