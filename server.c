@@ -209,6 +209,12 @@ deleteTokens(char** parsedMessage)
 void
 handleMessage(void* arg, const addr_t fromAddress, char* message)
 {
+  /* if any pointer arguments are NULL, return. */
+  if (arg == NULL || message == NULL) {
+    return;
+  }
+
+  /* convert arg back to gamestate */
   const gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
   char** tokens;
@@ -231,20 +237,30 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
     switch (tokens[0][0])
     {
       case 'K':
+
+        /* handle gameplay keys */
         if (numTokens == 2 && (strcmp(tokens[0], "KEY") == 0) ) {
 
           /* call function to handle key here */
           handleKey(state, fromAddress, tokens[1]);
         }
         else {
+          fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
           fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;
 
       case 'S':
+
+        /* add spectator */
         if (numTokens == 1 && (strcmp(tokens[0], "SPECTATE") == 0) ) {
           gamestate_addSpectator(state, fromAddress);
         }
+        else {
+          fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
+          fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
+        }
+        break;
 
       case 'P':
         /* routine to add player */
@@ -292,12 +308,11 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
             
             fprintf(stderr, "'%s' is not a valid add player message.\n", message);
             fprintf(stderr, "Invalid action sequence detected. Stop.\n");
-            
           }
         }
         else {
+          fprintf(stderr, "'%s' is not a valid add message.\n", message);
           fprintf(stderr, "Invalid action sequence detected. Stop.\n");
-          return;
         }
         break;
 
