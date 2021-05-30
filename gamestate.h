@@ -27,4 +27,9 @@ gamestate_t* gamestate_init(FILE* mapFile);
 
 gamestate_t** gamestate_getPlayers(gamestate_t* game);
 
+/*
+* Closes the game and frees all malloc'd memory in the gamestate object
+*/
+void gamestate_closeGame(gamestate_t* state);
+
 #endif
