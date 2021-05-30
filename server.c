@@ -207,8 +207,9 @@ deleteTokens(char** parsedMessage)
 }
 
 void
-handleMessage(const gamestate_t* state, const addr_t fromAddress, char* message)
+handleMessage(void* arg, const addr_t fromAddress, char* message)
 {
+  const gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
   char** tokens;
   if ( (tokens = tokenize(message)) != NULL) {
