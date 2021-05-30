@@ -20,12 +20,12 @@ void parseArgs(int argc, char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
 static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
-
-//static void game_close(gamestate_t* gameState, (close_func)(*void arg));
+static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
 
 
-int main(const int argc, const char* argv[]){
+int
+main(const int argc, const char* argv[]){
     // Parse arguments  and use seed value
     int* seed = malloc(sizeof(int));
     parseArgs(argc, argv, &seed);
@@ -51,13 +51,15 @@ int main(const int argc, const char* argv[]){
     //     ,/**/
     // );
 
+    // Free all gamestate memory
     game_close(gs);
 
     // Free seed value
     free(seed);
 }
 
-void parseArgs(int argc, char* argv[], int* seed){
+void 
+parseArgs(int argc, char* argv[], int* seed){
     // Check for illegal # of arguments
     if(argc != 3){
         fprintf(stderr, "Illegal number of arguments...\n");
@@ -84,7 +86,8 @@ void parseArgs(int argc, char* argv[], int* seed){
     fclose(fp);
 }
 
-static int numberOfColumns(FILE* mapfile){
+static int
+numberOfColumns(FILE* mapfile){
     char* line = file_readLine(mapfile);
 
     if(line == NULL) return 0;
@@ -112,7 +115,8 @@ static int numberOfColumns(FILE* mapfile){
 //     }
 // }
 
-static gamestate_t* game_init(FILE* mapFile){
+static
+gamestate_t* game_init(FILE* mapFile){
 
     if(mapFile == NULL){
         fprintf(stderr, "Unable to open and read map file");
@@ -136,7 +140,8 @@ static gamestate_t* game_init(FILE* mapFile){
     return gameState;
 }
 
-static void game_close(gamestate_t* gameState){
+static void
+game_close(gamestate_t* gameState){
 
     if(gameState == NULL){
         fprintf(stderr, "Error: GameState Null...\n");
