@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <ctype.h>
 #include "support/file.h"
 #include "support/message.h"
 #include "support/log.h"
@@ -25,7 +26,8 @@ void handleInput(void* arg);
 
 
 int
-main(const int argc, const char* argv[]){
+main(const int argc, const char* argv[])
+{
     // Parse arguments  and use seed value
     int* seed = malloc(sizeof(int));
     parseArgs(argc, argv, &seed);
@@ -59,7 +61,8 @@ main(const int argc, const char* argv[]){
 }
 
 void 
-parseArgs(int argc, char* argv[], int* seed){
+parseArgs(int argc, char* argv[], int* seed)
+{
     // Check for illegal # of arguments
     if(argc != 3){
         fprintf(stderr, "Illegal number of arguments...\n");
@@ -87,15 +90,16 @@ parseArgs(int argc, char* argv[], int* seed){
 }
 
 static int
-numberOfColumns(FILE* mapfile){
-    char* line = file_readLine(mapfile);
+numberOfColumns(FILE* mapfile)
+{
+  char* line = file_readLine(mapfile);
 
-    if(line == NULL) return 0;
+  if(line == NULL) return 0;
 
-    int len = strlen(line);
-    free(line);
+  int len = strlen(line);
+  free(line);
 
-    return len;
+  return len;
 }
 
 
@@ -116,40 +120,42 @@ numberOfColumns(FILE* mapfile){
 // }
 
 static
-gamestate_t* game_init(FILE* mapFile){
+gamestate_t* game_init(FILE* mapFile)
+{
 
-    if(mapFile == NULL){
-        fprintf(stderr, "Unable to open and read map file");
-        exit(1);
-    }
+  if(mapFile == NULL){
+    fprintf(stderr, "Unable to open and read map file");
+    exit(1);
+  }
     
-    // Create gamestate pointer and call gamestate_init()
-    gamestate_t* gameState = gamestate_init(mapFile);
+  // Create gamestate pointer and call gamestate_init()
+  gamestate_t* gameState = gamestate_init(mapFile);
 
-    // Condition: gamestate_init successfully created an object
-    if(gameState == NULL){
-        // If gamestate_init gives a NULL poiter, exit with error
-        fprintf(stderr, "Unable to allocate space for the game state.\n");
-        exit(1);
-    }else{
-        // Distribute gold throughout the grid
-        gold_distribute(gameState->masterGrid, gameState->gameGold);
-    }
+  // Condition: gamestate_init successfully created an object
+  if(gameState == NULL){
+    // If gamestate_init gives a NULL poiter, exit with error
+    fprintf(stderr, "Unable to allocate space for the game state.\n");
+    exit(1);
+  }else{
+    // Distribute gold throughout the grid
+    gold_distribute(gameState->masterGrid, gameState->gameGold);
+  }
 
-    // Return the gamestate object
-    return gameState;
+  // Return the gamestate object
+  return gameState;
 }
 
 static void
-game_close(gamestate_t* gameState){
+game_close(gamestate_t* gameState)
+{
 
-    if(gameState == NULL){
-        fprintf(stderr, "Error: GameState Null...\n");
-        exit(1);
-    } else {
-        // Close game and free memory
-        gamestate_closeGame(gameState);
-    }
+  if(gameState == NULL){
+    fprintf(stderr, "Error: GameState Null...\n");
+    exit(1);
+  } else {
+    // Close game and free memory
+    gamestate_closeGame(gameState);
+  }
 }
 
 // void handleInput(void* arg){
