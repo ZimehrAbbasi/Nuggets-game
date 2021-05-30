@@ -18,7 +18,16 @@
 /* message module */
 #include "message.h"
 
-typedef struct player player_t;
+typedef struct player {
+  char letter;
+  char* name;
+  addr_t address;
+  int gold;
+  int x;
+  int y;
+  grid_t* grid;
+} player_t;
+
 
 player_t* player_new(addr_t* address, int x, int y, char*** player_grid);
 

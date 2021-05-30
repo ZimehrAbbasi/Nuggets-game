@@ -20,7 +20,11 @@
 #include "grid.h"       /* grid module */
 #include "player.h"     /* player module */
 
-typedef struct gold gold_t;
+typedef struct gold {
+  int* goldCounter;
+  int numPiles;
+  int index;
+} gold_t;
 
 gold_t* gold_init(int numPiles);
 

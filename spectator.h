@@ -18,7 +18,9 @@
 
 #include "message.h"  /* message module */
 
-typedef struct spectator spectator_t;
+typedef struct spectator {
+  addr_t address;
+} spectator_t;
 
 spectator_t* spectator_new(addr_t address);
 

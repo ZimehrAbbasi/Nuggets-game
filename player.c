@@ -13,18 +13,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "player.h" /* player module */
 #include "message.h"  /* message module */
 #include "grid.h"     /* grid module */
 
-typedef struct player {
-  char letter;
-  char* name;
-  addr_t address;
-  int gold;
-  int x;
-  int y;
-  grid_t* grid;
-} player_t;
 
 player_t* 
 player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid) 
