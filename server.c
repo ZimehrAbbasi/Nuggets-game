@@ -164,7 +164,7 @@ game_close(gamestate_t* gameState)
 // }
 
 char**
-parseMessage (char* message)
+tokenize(char* message)
 {
   if (message == NULL) {
     return NULL;
@@ -192,7 +192,7 @@ parseMessage (char* message)
 }
 
 void
-deleteParsedMessage(char** parsedMessage)
+deleteTokens(char** parsedMessage)
 {
   if (parsedMessage != NULL) {
 
@@ -204,4 +204,131 @@ deleteParsedMessage(char** parsedMessage)
     /* free the holder */
     free(parsedMessage);
   }
+}
+
+void
+handleMessage(const gamestate_t* state, const addr_t fromAddress, char* message)
+{
+  /* get tokens in message */
+  char** tokens;
+  if ( (tokens = tokenize(message)) != NULL) {
+
+    /* find number of tokens */
+    int numTokens = 0;
+    for (int i = 0; tokens[i] != NULL; i++) {
+      numTokens = i + 1;
+    }
+
+    if (numTokens == 0) {
+      fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
+      free(message);
+      free(tokens);
+      return;
+    }
+
+    /* run switch statement on first char of first token */
+    switch (tokens[0][0])
+    {
+      case 'K':
+        if (numTokens == 2 && (strcmp(tokens[0], "KEY") == 0) ) {
+
+          /* call function to handle key here */
+          handleKey(state, fromAddress, tokens[1]);
+        }
+        else {
+          fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+        }
+        break;
+
+      case 'S':
+        if (numTokens == 1 && (strcmp(tokens[0], "SPECTATE") == 0) ) {
+          gamestate_addSpectator(state, fromAddress);
+        }
+
+      case 'P':
+        /* routine to add player */
+        if (numTokens >= 2 && (strcmp(tokens[0], "PLAY") == 0) ) {
+
+          /* init grid for player */
+          grid_t* playerGrid = grid_initForPlayer(state->masterGrid);
+
+          /* generate letter for player */
+          char letter = 'A' + state->players_seen;
+
+          /* get full player name */
+          char* playerName[100];
+          for (int i = 1; i < numTokens; i++) {
+            strcat(playerName, tokens[i]);
+          }
+
+          /* generate random x,y values 
+             and check for validity 
+             until valid point is found */
+          int x = randomInt(1, state->masterGrid->cols);
+          int y = randomInt(1, state->masterGrid->rows);
+
+          while (! grid_isSpace(state->masterGrid, x, y)) {
+            x = randomInt(1, state->masterGrid->cols);
+            y = randomInt(1, state->masterGrid->rows);
+          }
+
+          /* create player */
+          player_t* newPlayer = player_init(letter, playerName, fromAddress, x, y, playerGrid);
+
+          /* if player created successfully,
+             add to gamestate */
+          if (newPlayer != NULL) {
+            gamestate_addPlayer(newPlayer);
+          }
+
+          /* if player creation failed, 
+             delete player grid
+             free
+             free tokens
+             print error flag */
+          else {
+            grid_delete(playerGrid);
+            
+            fprintf(stderr, "'%s' is not a valid add player message.\n", message);
+            fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+            
+          }
+        }
+        else {
+          fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+          return;
+        }
+        break;
+
+    }
+    deleteTokens(tokens);
+    free(message);
+  }
+
+  
+}
+
+/**************** Static Functions ******************/
+
+/**
+ * @brief: Function to generate a number within a range.
+ * repeatedly calls rand() until value
+ * between the lower and upper bound is generated.
+ * 
+ * @param lower: lower bound, inclusive
+ * @param upper: upper bound, inclusive
+ * @return int: a random value between the lower and upper bound.
+ */
+static int
+randomInt(int lower, int upper)
+{
+  if (lower < upper) {
+    int num = rand();
+    while (num < lower || num > upper) {
+      num = rand();
+    }
+    return num;
+  }
+  fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
+  return -1;
 }

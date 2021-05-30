@@ -64,6 +64,39 @@ grid_t* grid_init(FILE* mapfile) {
   return NULL;
 }
 
+grid_t*
+grid_initForPlayer(grid_t* masterGrid)
+{
+  if (masterGrid != NULL) {
+    grid_t* grid  = malloc(sizeof(grid_t));
+    if (grid == NULL) {
+      return NULL; 
+    }
+
+    /* save rows, columns */
+    grid->rows = masterGrid->rows;
+    grid->cols = masterGrid->cols;
+
+    /* create map representation */
+    grid->g = malloc(masterGrid->rows);
+
+    /* allocate rows */
+    for(int i=0; i<masterGrid->rows; i++){
+      grid->g[i] = malloc(masterGrid->cols);
+    }
+    /* fill player grid with spaces as holders */
+    for (int y=0; y<grid->rows; y++) {
+      for (int x=0; x<grid->cols; x++) {
+        grid->g[y][x] = ' ';
+      }
+    }
+
+    /* return grid */
+    return grid;
+  }
+  fprintf(stderr, "Error: cannot init grid to match a NULL grid. Stop. \n");
+}
+
 char* grid_toString(grid_t* grid){
   if (grid == NULL){
     return NULL;
@@ -140,12 +173,21 @@ grid_isGold(grid_t* grid, int x, int y)
 bool
 grid_isPassage(grid_t* grid, int x, int y)
 {
-  char **master = grid->g;
-  return master[y][x] == '#';
+  if (grid != NULL) {
+    char **master = grid->g;
+    return master[y][x] == '#';
+  }
+  return -1;
     // {
     //     return true;
     // }
     // return false;
+}
+
+bool
+grid_isSpace(grid_t* grid, int x, int y) {
+  char **master = grid->g;
+  return master[y][x] == '.';
 }
 
 bool 
