@@ -31,7 +31,7 @@ main(const int argc, const char* argv[])
 {
     // Parse arguments  and use seed value
     int* seed = malloc(sizeof(int));
-    parseArgs(argc, argv, &seed);
+    parseArgs(argc, argv, seed);
     srand(*seed);
 
     // Open and close map file and init gamestate object
