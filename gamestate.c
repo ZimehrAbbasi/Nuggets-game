@@ -70,12 +70,38 @@ gamestate_getPlayers(gamestate_t* game)
 }
 
 void
-gamestate_addSpectator(gamestate_t* state, spectator_t* newSpectator)
+gamestate_addPlayer(gamestate_t* state, player_t* player)
 {
-  if (state != NULL && newSpectator != NULL) {
-    if (state->spectator != NULL) {
-      spectator_delete(state->spectator);
+  /* if gamestate is not NULL */
+  if (state != NULL && player != NULL) {
+
+    /* if there's still space for more players */
+    if (state->players_seen < 26) {
+
+      /* add new player, increment num of players seen */
+      state->players[state->players_seen++] = player;
     }
-    state->spectator = newSpectator;
+    else {
+
+      /* if game is full, send QUIT message */
+      player_send(player, "QUIT Game is full.");
+    }
+  }
+}
+
+void
+gamestate_addSpectator(gamestate_t* game, addr_t address)
+{
+  /* if game is not NULL */
+  if (game != NULL) {
+
+    /* if a spectator exists in game, replace them */
+    if (game->spectator != NULL) {
+      spectator_send(game->spectator, "QUIT You have been replaced by a new spectator.");
+      spectator_delete(game->spectator);
+    }
+
+    /* save new spectator */
+    game->spectator = spectator_new(address);
   }
 }
