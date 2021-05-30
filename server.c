@@ -20,12 +20,12 @@ void parseArgs(int argc, char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
 static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
-
-//static void game_close(gamestate_t* gameState, (close_func)(*void arg));
+static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
 
 
-int main(const int argc, const char* argv[]){
+int
+main(const int argc, const char* argv[]){
     // Parse arguments  and use seed value
     int* seed = malloc(sizeof(int));
     parseArgs(argc, argv, &seed);
@@ -51,13 +51,15 @@ int main(const int argc, const char* argv[]){
     //     ,/**/
     // );
 
-    //game_close(gs, NULL);
+    // Free all gamestate memory
+    game_close(gs);
 
     // Free seed value
     free(seed);
 }
 
-void parseArgs(int argc, char* argv[], int* seed){
+void 
+parseArgs(int argc, char* argv[], int* seed){
     // Check for illegal # of arguments
     if(argc != 3){
         fprintf(stderr, "Illegal number of arguments...\n");
@@ -84,7 +86,8 @@ void parseArgs(int argc, char* argv[], int* seed){
     fclose(fp);
 }
 
-static int numberOfColumns(FILE* mapfile){
+static int
+numberOfColumns(FILE* mapfile){
     char* line = file_readLine(mapfile);
 
     if(line == NULL) return 0;
@@ -112,7 +115,8 @@ static int numberOfColumns(FILE* mapfile){
 //     }
 // }
 
-static gamestate_t* game_init(FILE* mapFile){
+static
+gamestate_t* game_init(FILE* mapFile){
 
     if(mapFile == NULL){
         fprintf(stderr, "Unable to open and read map file");
@@ -136,32 +140,17 @@ static gamestate_t* game_init(FILE* mapFile){
     return gameState;
 }
 
-// static void game_close(gamestate_t* gameState, *(close_func)(*void arg)){
+static void
+game_close(gamestate_t* gameState){
 
-//     if(gameState == NULL){
-//         fprintf(stderr, "Error: GameState Null...\n");
-//         exit(1);
-//     }
-
-//     if(close_func == NULL){
-//         free(gameState->gameGold->totalGold);
-//         free(gameState->gameGold);
-//         for(int i = 0; i < 26; i++){
-//             if(gameState->allPlayers == NULL){
-//                 break;
-//             }
-//             free(gameState->allPlayers[i]->address);
-//             free(gameState->allPlayers[i]);
-//         }
-//         free(gameState->allPlayers);
-//         grid_t* grid = gameState->master_grid;
-//         for(int i = 0;i<rows;i++){
-//             free(grid->g[i]);
-//         }
-//         free(grid->g);
-//         free(gameState);
-//     }
-// }
+    if(gameState == NULL){
+        fprintf(stderr, "Error: GameState Null...\n");
+        exit(1);
+    } else {
+        // Close game and free memory
+        gamestate_closeGame(gameState);
+    }
+}
 
 // void handleInput(void* arg){
 

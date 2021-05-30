@@ -63,6 +63,21 @@ gamestate_initSpectator(gamestate_t* state){
   state->spectator = NULL;
 }
 
+static void
+gamestate_playersDeleteHelper(gamestate_t* state){
+  // Get number of players objects
+  int numberOfPlayers = state->players_seen;
+  
+  // Loop over every item in the players array and delete the player
+  for(int i = 0; i < numberOfPlayers; i++){
+    // Get current player
+    player_t* currentPlayer = state->players[i];
+
+    // Run player_delete on current player
+    player_delete(currentPlayer);
+  }
+}
+
 gamestate_t**
 gamestate_getPlayers(gamestate_t* game)
 {
@@ -104,4 +119,21 @@ gamestate_addSpectator(gamestate_t* game, addr_t address)
     /* save new spectator */
     game->spectator = spectator_new(address);
   }
+}
+
+void gamestate_closeGame(gamestate_t* state){
+  // Close grid
+  grid_delete(state->masterGrid);
+
+  // Close spectator
+  spectator_delete(state->spectator);
+  
+  // Close players array
+  gamestate_playersDeleteHelper(state);
+
+  // Close gold
+  gold_delete(state->gameGold);
+
+  // Free entire gamestate object
+  free(state);
 }
