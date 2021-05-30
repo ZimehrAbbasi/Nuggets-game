@@ -121,6 +121,46 @@ gamestate_addSpectator(gamestate_t* game, addr_t address)
   }
 }
 
+bool
+gamestate_isSpectator(gamestate_t* state, addr_t address)
+{
+  /* defensive checks */
+  if (state != NULL && state->spectator != NULL) {
+
+    /* check if address matches that of spectator in game */
+    spectator_t* spectator = state->spectator;
+    return message_eqAddr(address, spectator->address);
+  }
+
+  /* if either is NULL, return false */
+  return false;
+}
+
+player_t*
+gamestate_findPlayerByAddress(gamestate_t* state, addr_t address)
+{
+  if (state != NULL) {    /* defensive check */
+
+    /* loop through players
+       checking for a matching address */
+    for (int i = 0; i < state->players_seen; i++) {
+      player_t* player = state->players[i];
+      if (message_eqAddr(address, player->address)) {
+        return player;
+      }
+    }
+
+    /* if no player found, return NULL */
+    fprintf(stderr, "No player found matching given address.\n");
+    return NULL;
+  }
+
+  /* if gamestate is NULL, 
+     print error message and return NULL */
+  fprintf(stderr, "Attempt to find player in NULL gamestate. Stop.\n");
+  return NULL;
+}
+
 void gamestate_closeGame(gamestate_t* state){
   // Close grid
   grid_delete(state->masterGrid);

@@ -215,7 +215,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
   }
 
   /* convert arg back to gamestate */
-  const gamestate_t* state = (gamestate_t*) arg;
+  gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
   char** tokens;
   if ( (tokens = tokenize(message)) != NULL) {
@@ -255,10 +255,61 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
         /* add spectator */
         if (numTokens == 1 && (strcmp(tokens[0], "SPECTATE") == 0) ) {
           gamestate_addSpectator(state, fromAddress);
+          int rows = state->masterGrid->rows;
+          int cols = state->masterGrid->cols;
+          char initMessage[100];                            /* No need to malloc; only used once */
+          sprintf(initMessage, "GRID %d, %d", rows, cols);
+          spectator_send(state->spectator, initMessage);
         }
         else {
           fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
           fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
+        }
+        break;
+      case 'Q':
+        /* routine for removing player */
+        if (numTokens == 0 && (strcmp(tokens[0], "QUIT") == 0) ) {
+
+          /* if address matches spectator in the game... */
+          if (gamestate_isSpectator(state, fromAddress)) {
+
+            /* get spectator */
+            spectator_t* spectator = state->spectator;
+
+            /* send QUIT message to spectator */
+            spectator_send(spectator, "QUIT Thank you for watching!");
+
+            /* delete spectator */
+            spectator_delete(spectator);
+
+            /* reset pointer to NULL 
+               (just so we don't get any surprises) */
+            state->spectator = NULL;
+          }
+
+          /* else -->
+             if address doesn't match the current spectator,
+             search for player instead.
+             
+             then no match was found. print error message. */
+          else {
+            player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
+            if (player != NULL) {
+              player_send(player, "QUIT Thank you for playing!");
+
+              /* We don't actually delete the player from the game 
+                 because we need to keep their information
+                 until end of game. */
+            }
+
+            /* if the search function returns NULL, 
+               no player was found. 
+               print to stderr. */
+            else {
+              fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
+            }
+
+          }
         }
         break;
 
@@ -268,6 +319,10 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
 
           /* init grid for player */
           grid_t* playerGrid = grid_initForPlayer(state->masterGrid);
+
+          /* get number of rows and columns in master grid */
+          int rows = state->masterGrid->rows;
+          int cols = state->masterGrid->cols;
 
           /* generate letter for player */
           char letter = 'A' + state->players_seen;
@@ -281,12 +336,12 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           /* generate random x,y values 
              and check for validity 
              until valid point is found */
-          int x = randomInt(1, state->masterGrid->cols);
-          int y = randomInt(1, state->masterGrid->rows);
+          int x = randomInt(1, cols);
+          int y = randomInt(1, rows);
 
           while (! grid_isSpace(state->masterGrid, x, y)) {
-            x = randomInt(1, state->masterGrid->cols);
-            y = randomInt(1, state->masterGrid->rows);
+            x = randomInt(1, cols);
+            y = randomInt(1, rows);
           }
 
           /* create player */
@@ -296,12 +351,13 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
              add to gamestate */
           if (newPlayer != NULL) {
             gamestate_addPlayer(newPlayer);
+            char initMessage[100];
+            sprintf(initMessage, "GRID %d, %d", rows, cols);
+            player_send(newPlayer, initMessage);
           }
 
           /* if player creation failed, 
              delete player grid
-             free
-             free tokens
              print error flag */
           else {
             grid_delete(playerGrid);
@@ -311,7 +367,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           }
         }
         else {
-          fprintf(stderr, "'%s' is not a valid add message.\n", message);
+          fprintf(stderr, "'%s' is not a valid message.\n", message);
           fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;

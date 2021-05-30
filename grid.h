@@ -47,6 +47,6 @@ bool grid_isPassage(grid_t* grid, int x, int y);
 
 bool grid_isSpace(grid_t* grid, int x, int y);
 
-bool grid_canMove(grid_t* master, player_t* player, char k)
+bool grid_canMove(grid_t* master, player_t* player, char k);
 
 #endif /* __GRID_H */
