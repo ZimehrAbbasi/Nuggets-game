@@ -51,7 +51,7 @@ int main(const int argc, const char* argv[]){
     //     ,/**/
     // );
 
-    //game_close(gs, NULL);
+    game_close(gs);
 
     // Free seed value
     free(seed);
@@ -136,32 +136,16 @@ static gamestate_t* game_init(FILE* mapFile){
     return gameState;
 }
 
-// static void game_close(gamestate_t* gameState, *(close_func)(*void arg)){
+static void game_close(gamestate_t* gameState){
 
-//     if(gameState == NULL){
-//         fprintf(stderr, "Error: GameState Null...\n");
-//         exit(1);
-//     }
-
-//     if(close_func == NULL){
-//         free(gameState->gameGold->totalGold);
-//         free(gameState->gameGold);
-//         for(int i = 0; i < 26; i++){
-//             if(gameState->allPlayers == NULL){
-//                 break;
-//             }
-//             free(gameState->allPlayers[i]->address);
-//             free(gameState->allPlayers[i]);
-//         }
-//         free(gameState->allPlayers);
-//         grid_t* grid = gameState->master_grid;
-//         for(int i = 0;i<rows;i++){
-//             free(grid->g[i]);
-//         }
-//         free(grid->g);
-//         free(gameState);
-//     }
-// }
+    if(gameState == NULL){
+        fprintf(stderr, "Error: GameState Null...\n");
+        exit(1);
+    } else {
+        // Close game and free memory
+        gamestate_closeGame(gameState);
+    }
+}
 
 // void handleInput(void* arg){
 

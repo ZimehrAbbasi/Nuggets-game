@@ -122,7 +122,13 @@ void
 player_delete(player_t* player)
 {
   if (player != NULL) {
+    // Free player associated grid
     grid_delete(player->grid);
+    
+    // Free player name
+    free(player->name);
+
+    // Free entire player object
     free(player);
   }
 }

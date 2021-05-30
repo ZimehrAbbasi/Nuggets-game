@@ -29,7 +29,7 @@ typedef struct player {
 } player_t;
 
 
-player_t* player_new(addr_t* address, int x, int y, char*** player_grid);
+player_t* player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid);
 
 void player_send(player_t* player, char* message);
 
