@@ -20,6 +20,7 @@ void parseArgs(int argc, char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
 static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
+
 //static void game_close(gamestate_t* gameState, (close_func)(*void arg));
 void handleInput(void* arg);
 

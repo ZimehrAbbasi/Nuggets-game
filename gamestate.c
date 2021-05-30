@@ -45,7 +45,7 @@ gamestate_init(FILE* mapFile)
 
 static void 
 gamestate_initPlayers(gamestate_t* state){
-  *(state->players) = (sizeof(player_t) * 26);
+  *(state->players) = malloc(sizeof(player_t) * 26);
 }
 
 static void 
