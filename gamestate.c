@@ -84,7 +84,7 @@ gamestate_playersDeleteHelper(gamestate_t* state){
   }
 }
 
-gamestate_t**
+player_t**
 gamestate_getPlayers(gamestate_t* game)
 {
   return game->players;

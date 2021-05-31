@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
+#include <float.h>
+#include <math.h>
 
 
 #include "support/file.h"         /* file operations */
@@ -95,6 +97,7 @@ grid_initForPlayer(grid_t* masterGrid)
     return grid;
   }
   fprintf(stderr, "Error: cannot init grid to match a NULL grid. Stop. \n");
+  return NULL;
 }
 
 char* grid_toString(grid_t* grid){
@@ -133,16 +136,17 @@ grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
       map[pos] = letter;
     }
   }
+  return map;
 }
 
 bool
 grid_isWall(grid_t* grid, int x, int y)
 {
   char **master = grid->g;
-  return ( (master[y][x] == "|") || 
-           (master[y][x] == "-") || 
-           (master[y][x] == "+") || 
-           (master[y][x] == " ") );
+  return ( master[y][x] == '|' || 
+           master[y][x] == '-' || 
+           master[y][x] == '+' || 
+           master[y][x] == ' ');
         // return true;
     // }
     // return false;
@@ -194,43 +198,43 @@ bool grid_canMove(grid_t* Grid, player_t* player, char k){
     char letter = k;
     switch (letter) {
     case 'l': 
-        if(!grid_isWall(Grid, player.x+1, player.y)){
-            return true
+        if(!grid_isWall(Grid, player->x+1, player->y)){
+            return true;
         }
         break;
     case 'h': 
-        if(!grid_isWall(Grid, player.x-1, player.y)){
-            return true
+        if(!grid_isWall(Grid, player->x-1, player->y)){
+            return true;
         }
         break;
     case 'k': 
-        if(!grid_isWall(Grid, player.x, player.y+1)){
-            return true
+        if(!grid_isWall(Grid, player->x, player->y+1)){
+            return true;
         }
         break;
     case 'j': 
-        if(!grid_isWall(Grid, player.x, player.y-1)){
-            return true
+        if(!grid_isWall(Grid, player->x, player->y-1)){
+            return true;
         }
         break;
     case 'u': 
-        if(!grid_isWall(Grid, player.x+1, player.y+1)){
-            return true
+        if(!grid_isWall(Grid, player->x+1, player->y+1)){
+            return true;
         }
         break;
     case 'y': 
-        if(!grid_isWall(Grid, player.x-1, player.y+1)){
-            return true
+        if(!grid_isWall(Grid, player->x-1, player->y+1)){
+            return true;
         }
         break;
     case 'b': 
-        if(!grid_isWall(Grid, player.x-1, player.y-1)){
-            return true
+        if(!grid_isWall(Grid, player->x-1, player->y-1)){
+            return true;
         }
         break;
     case 'n': 
-        if(!grid_isWall(Grid, player.x+1, player.y-1)){
-            return true
+        if(!grid_isWall(Grid, player->x+1, player->y-1)){
+            return true;
         }
         break;
     default:
@@ -242,7 +246,7 @@ bool grid_canMove(grid_t* Grid, player_t* player, char k){
 static double calculate_slope(int x1, int y1, int x2, int y2){
 
     if(y1 == y2){
-        return NULL;
+        return DBL_MAX;
     }
 
     return (x1 - x2)/(y1 - y2);
@@ -263,18 +267,18 @@ static int min(int num1, int num2){
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
 
     char **master_grid = Grid->g;
-    char **player_grid = player-grid->g;
+    char **player_grid = player->grid->g;
     double slope;
     double x_pred, y_pred;
     int upper, lower;
     bool visibility;
-    for(int x = 0; x < Grid.cols; x++){
-        for(int y = 0; y < Grid.rows; y++){
-            slope = calculate_slope(x, y, player.x, player.y);
+    for(int x = 0; x < Grid->cols; x++){
+        for(int y = 0; y < Grid->rows; y++){
+            slope = calculate_slope(x, y, player->x, player->y);
             visibility = true;
-            if(abs(player.y - y) > abs(player.x - x)){
-                for(int y1 = min(y, player.y)+1; y1 < max(y, player.y); y1++){
-                    x_pred = func(y1, min(x, player.x), -1/slope);
+            if(abs(player->y - y) > abs(player->x - x)){
+                for(int y1 = min(y, player->y)+1; y1 < max(y, player->y); y1++){
+                    x_pred = func(y1, min(x, player->x), -1/slope);
                     upper = (int)ceil(x_pred);
                     lower = (int)floor(x_pred);
                     
@@ -284,8 +288,8 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
                     }
                 }
             }else{
-                for(int x1 = min(x, player.x); x1 < max(x, player.x); x1++){
-                    y_pred = func(x1, min(y, player.y), slope);
+                for(int x1 = min(x, player->x); x1 < max(x, player->x); x1++){
+                    y_pred = func(x1, min(y, player->y), slope);
                     upper = (int)ceil(y_pred);
                     lower = (int)floor(y_pred);
                     
@@ -299,8 +303,8 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
             if(visibility){
                 player_grid[y][x] = master_grid[x][y];
             }else{
-                if(grid_isGold(Grid, x, y){
-                    player_grid[y][x] = "."
+                if(grid_isGold(Grid, x, y)){
+                    player_grid[y][x] = '.';
                 }
             }
 
@@ -309,56 +313,57 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 
 }
 
-void grid_movePlayer(game_state_t* gameState, player_t* player, int x, int y){
-    grid_t* master = gameState->master_grid
-    gold_t* gameGold = gamState->gameGold
-	char** player_grid = player->player_grid;
-	char** master_grid = master->master_grid;
+void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
+    grid_t* master = gameState->masterGrid;
+    gold_t* gameGold = gameState->gameGold;
+	char** player_grid = player->grid->g;
+	char** master_grid = master->g;
+	int* gold_array = gameGold->goldCounter;
 
     if (grid_isGold(master, x, y)){
-		player_grid[player.y][player.x] = '.';
-		master_grid[player.y][player.x] = '.';
+		player_grid[player->y][player->x] = '.';
+		master_grid[player->y][player->x] = '.';
 
-        player.x = x;
-		player.y = y;
+        player->x = x;
+		player->y = y;
         
-        player.gold = gameGold[gameGold.index];
-        gmaGold.goldremaining -= gameGold[gameGold.index];
-        gameGold.index += 1;
+        player->gold = gold_array[gameGold->index];
+        // gameGold->goldremaining -= gold_array[gameGold->index];
+        gameGold->index += 1;
         
-        master_grid[y][x] = player.letter;
-		player_grid[y][x] = player.letter;
+        master_grid[y][x] = player->letter;
+		player_grid[y][x] = player->letter;
         
         
     }else if(grid_isPlayer(master, x, y)){
 
-		player_t **allPlayers = gameState->allPlayers;
+		player_t **players = gameState->players;
         for(int i = 0; i < 26;i++){
-			player_t* otherplayer = allPlayers[i];
-			if (otherPlayer.x == x and otherPlayer.y == y){
-                otherPlayer.x = player.x;
-                otherPlayer.y = player.y;
-                char** other_grid = otherPlayer->player_grid;
-				other_grid[otherPlayer.y][otherPlayer.x] = otherPlayer.letter;
-				master_grid[otherPlayer.y][otherPlayer.x] = otherPlayer.letter;
+			player_t* otherPlayer = players[i];
+			if (otherPlayer->x == x && otherPlayer->y == y){
+                otherPlayer->x = player->x;
+                otherPlayer->y = player->y;
+                char** other_grid = otherPlayer->grid->g;
+				other_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
+				master_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
 				break;
 			}
 		}
         
-        player.x = x;
-		player.y = y;
-        master_grid[y][x] = player.letter;
-		player_grid[y][x] = player.letter;
+        player->x = x;
+		player->y = y;
+        master_grid[y][x] = player->letter;
+		player_grid[y][x] = player->letter;
 
 	}else{
-        player_grid[player.y][player.x] = '.';
-		master_grid[player.y][player.x] = '.';
+        player_grid[player->y][player->x] = '.';
+		master_grid[player->y][player->x] = '.';
 
-        player.x = x;
-		player.y = y;
+        player->x = x;
+		player->y = y;
 
-		master_grid[y][x] = player.letter;
-		player_grid[y][x] = player.letter;
+		master_grid[y][x] = player->letter;
+		player_grid[y][x] = player->letter;
 	}
 }
 
@@ -389,6 +394,8 @@ grid_getColumns(grid_t* grid)
   if (grid != NULL) {
     return grid->cols;
   }
+  fprintf(stderr, "Grid is NULL. Stop.\n");
+  return -1;
 }
 
 char**

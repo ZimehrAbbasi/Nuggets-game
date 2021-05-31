@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct grid {
   char** g;
@@ -35,7 +36,7 @@ void grid_delete(grid_t* grid);
 
 int grid_getRows(grid_t* grid);
 
-int grid_getRows(grid_t* grid);
+int grid_getColumns(grid_t* grid);
 
 char** grid_getGrid(grid_t* grid);
 

@@ -25,7 +25,7 @@ typedef struct game {
 
 gamestate_t* gamestate_init(FILE* mapFile);
 
-gamestate_t** gamestate_getPlayers(gamestate_t* game);
+player_t** gamestate_getPlayers(gamestate_t* game);
 
 bool gamestate_isSpectator(gamestate_t* state, addr_t address);
 

@@ -17,6 +17,7 @@
 
 /* message module */
 #include "support/message.h"
+#include "grid.h"
 
 typedef struct player {
   char letter;

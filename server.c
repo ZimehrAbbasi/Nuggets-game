@@ -13,17 +13,17 @@
 #include "spectator.h"
 
 // Global Variables
-int MaxNameLength = 50;
-int MaxPlayers = 26;
+const int MaxNameLength = 50;
+const int MaxPlayers = 26;
 int GoldTotal = 250;
-int GoldMinNumPiles = 10;
-int GoldMaxNumPiles = 30;
+const int GoldMinNumPiles = 10;
+const int GoldMaxNumPiles = 30;
 
 
 // Function prototypes
 void parseArgs(const int argc, const char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
-static void gold_distribute(grid_t* Grid, gold_t* Gold);
+//static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
 static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
@@ -255,7 +255,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
         if (numTokens == 2 && (strcmp(tokens[0], "KEY") == 0) ) {
 
           /* call function to handle key here */
-          handleKey(state, fromAddress, tokens[1]);
+          //handleKey(state, fromAddress, tokens[1]); TODO: Write this fuction
         }
         else {
           reportMalformedMessage(fromAddress, message, "is not a valid gameplay message.");
