@@ -80,7 +80,7 @@ grid_initForPlayer(grid_t* masterGrid)
     grid->cols = masterGrid->cols;
 
     /* create map representation */
-    grid->g = malloc(masterGrid->rows);
+    grid->g = malloc((masterGrid->rows + 1) * sizeof(char*));
 
     /* allocate rows */
     for(int i=0; i<masterGrid->rows; i++){
@@ -104,7 +104,7 @@ char* grid_toString(grid_t* grid){
   if (grid == NULL){
     return NULL;
   }
-  char* stringifiedGrid = malloc(grid->rows * grid->cols);
+  char* stringifiedGrid = malloc(((grid->rows)*sizeof(char*)) * grid->cols);
   char** map = grid->g;
   for(int x = 0; x < grid->rows; x++){
     strcat(stringifiedGrid, map[x]);
@@ -253,7 +253,7 @@ static double calculate_slope(int x1, int y1, int x2, int y2){
 }
 
 static double func(int x, int y, double slope){
-    return slope * x + y;
+    return ((slope * x) + y);
 }
 
 static int max(int num1, int num2){
@@ -265,7 +265,9 @@ static int min(int num1, int num2){
 }
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
-
+    
+    printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
+    
     char **master_grid = Grid->g;
     char **player_grid = player->grid->g;
     double slope;
@@ -274,14 +276,21 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     bool visibility;
     for(int x = 0; x < Grid->cols; x++){
         for(int y = 0; y < Grid->rows; y++){
+            if(master_grid[y][x] == ' '){
+              continue;
+            }
             slope = calculate_slope(x, y, player->x, player->y);
             visibility = true;
             if(abs(player->y - y) > abs(player->x - x)){
                 for(int y1 = min(y, player->y)+1; y1 < max(y, player->y); y1++){
                     x_pred = func(y1, min(x, player->x), -1/slope);
+                    if(max(x, player->x) < x_pred){
+                      continue;
+                    }
                     upper = (int)ceil(x_pred);
                     lower = (int)floor(x_pred);
-                    
+
+                    printf("\nx: %d\ny: %d\n", x, y);
                     if(master_grid[y1][upper] != '.' || master_grid[y1][lower] != '.' || !isalpha(master_grid[y1][upper]) || !isalpha(master_grid[y1][lower])){
                         visibility = false;
                         break;      
@@ -290,12 +299,16 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
             }else{
                 for(int x1 = min(x, player->x); x1 < max(x, player->x); x1++){
                     y_pred = func(x1, min(y, player->y), slope);
+                    if(max(y, player->y) < y_pred){
+                      continue;
+                    }
                     upper = (int)ceil(y_pred);
                     lower = (int)floor(y_pred);
                     
+                    printf("\nx1: %d\nupper: %d\nlower: %d\n", x1, upper, lower);
                     if(master_grid[upper][x1] != '.' || master_grid[lower][x1] != '.' || !isalpha(master_grid[upper][x1]) || !isalpha(master_grid[lower][x1])){
                         visibility = false;
-                        break;      
+                        break;
                     }
                 }
             }

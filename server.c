@@ -35,6 +35,12 @@ static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
 static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message);
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
+static bool isGameEnded(gamestate_t* state);
+static void displayForSpectator(gamestate_t* state, spectator_t* spectator);
+static void displayForPlayer(gamestate_t* state, player_t* player);
+static int getRemainingGold(gamestate_t* state);
+static void sendGoldToPlayers(gamestate_t* state);
+static void sendPlayerOK(player_t* player);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -184,9 +190,10 @@ deleteTokens(char** parsedMessage)
 bool
 handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
-  /* if any pointer arguments are NULL, return. */
+  /* if any pointer arguments are NULL, return true and terminate game loop. */
   if (arg == NULL || message == NULL) {
-    return false;
+    fprintf(stderr, "Entered message loop without gamestate. Fatal error occurred");
+    return true;
   }
 
   /* convert arg back to gamestate */
@@ -313,8 +320,9 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
           if (newPlayer != NULL) {
             gamestate_addPlayer(state, newPlayer);
             char initMessage[100];
-            sprintf(initMessage, "GRID %d, %d", rows, cols);
+            sprintf(initMessage, "GRID %d %d", rows, cols);
             player_send(newPlayer, initMessage);
+            sendPlayerOK(newPlayer);
           }
 
           /* if player creation failed, 
@@ -339,7 +347,26 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     free((char*)message);
     free(message_copy);
   }
-  return true;
+
+  // Send updated game state to spectator
+  displayForSpectator(state, state->spectator);
+
+  // Send updated game state to all players
+  int numClients = state->players_seen;
+  player_t** clients = state->players;
+  for(int i = 0; i < numClients; i++){
+    displayForPlayer(state, clients[i]);
+  }
+
+  sendGoldToPlayers(state);
+
+  // Check if game is ended
+  if(!isGameEnded(state)){
+    return false;
+  }else{
+    // Do things for when game is over
+    return true;
+  }
 }
 
 /**************** Static Functions ******************/
@@ -428,6 +455,116 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   else {
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
+}
+
+static void
+displayForSpectator(gamestate_t* state, spectator_t* spectator){
+  // Convert master grid to a string
+  grid_t* entireGrid = state->masterGrid;
+  char* masterGridAsString = grid_toString(entireGrid);
+  
+  // Create message header
+  char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
+  
+  // Concatenate and send message
+  strcpy(messageHeader, "DISPLAY\n");
+  strcat(messageHeader, masterGridAsString);
+  spectator_send(spectator, messageHeader);
+
+  // Free created memory
+  free(masterGridAsString);
+}
+
+static void
+displayForPlayer(gamestate_t* state, player_t* player){
+  // Update player's visible grid
+  grid_t* entireGrid = state->masterGrid;
+  //grid_calculateVisibility(entireGrid, player);
+  player->grid = entireGrid;
+
+  // Covert visible grid to string
+  grid_t* playerGrid = player->grid;
+  char* playerGridAsString = grid_toString(playerGrid);
+  
+  // Create message header
+  char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
+  strcpy(messageHeader, "DISPLAY\n");
+
+  /* TODO: Make a playerSpecific grid_toString function that takes in
+  * the game state so that player and gold visibility can be accounted for
+  * in the final string.
+  */ 
+  strcat(messageHeader, playerGridAsString);
+  player_send(player, messageHeader);
+
+  // Free created memory
+  free(playerGridAsString);
+}
+
+static bool
+isGameEnded(gamestate_t* state){
+  // Get gold object from game state
+  gold_t* gold_from_state = state->gameGold;
+  
+  // See if we have collected all gold piles
+  // (if index == num_gold_piles)
+  int index = gold_from_state->index;
+  int num_gold_piles = gold_from_state->numPiles;
+
+
+  if(index >= num_gold_piles){
+    return true;
+  } else{
+    return false;
+  }
+}
+
+static void
+sendGoldToPlayers(gamestate_t* state){
+  // Loop over every player
+  player_t** allPlayers = state->players;
+  int numPlayers = state->players_seen;
+
+  for(int i = 0; i < numPlayers; i++){
+    // Get n, p and r
+    int currentPlayerGold = allPlayers[i]->gold;
+    int justCollectedGold = 0;
+    int goldLeftInGame = getRemainingGold(state);
+
+    // Format and send message
+    char* goldMessage = malloc(sizeof(char) * 100);
+    sprintf(goldMessage,
+    "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
+
+    player_send(allPlayers[i], goldMessage);
+
+    // Free used memory
+    free(goldMessage);
+  }
+}
+
+static int
+getRemainingGold(gamestate_t* state){
+  gold_t* gamestateGold = state->gameGold;
+  int goldLeft = 0;
+  int currentIndex = gamestateGold->index;
+
+  for(int i = currentIndex; i < gamestateGold->numPiles; i++){
+    goldLeft += gamestateGold->goldCounter[i];
+  }
+
+  return goldLeft;
+}
+
+
+static void 
+sendPlayerOK(player_t* player){
+  // Generate message from player data
+  char okMessage[10];
+  sprintf(okMessage, "OK %c", player->letter);
+
+  // Send message to player
+  player_send(player, okMessage);
 }
 
 int
