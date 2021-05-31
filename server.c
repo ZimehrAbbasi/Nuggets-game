@@ -29,53 +29,12 @@ static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
 char** tokenize(char* message);
 void deleteTokens(char** parsedMessage);
-void handleMessage(void* arg, const addr_t fromAddress, char* message);
+bool handleMessage(void* arg, const addr_t fromAddress, char* message);
 static void handlePlayerQuit(gamestate_t* state, addr_t fromAddress);
 static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
 static void reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message);
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
-
-int
-main(const int argc, const char* argv[])
-{
-
-  fprintf(stdout, "GOT HERE!");
-
-
-    // Parse arguments  and use seed value
-    int* seed = malloc(sizeof(int));
-    parseArgs(argc, argv, seed);
-    srand(*seed);
-
-    // Open and close map file and init gamestate object
-    FILE* fp  = fopen(argv[1], "r");
-    gamestate_t* gs = game_init(fp);
-    fclose(fp);
-
-    // Initialize network and get port number
-    int port = message_init(stderr);
-    if(port == 0){
-        fprintf(stderr, "Could not initialize message...\n");
-        exit(1);
-    }
-
-
-    // // Start message loop
-    // message_loop(
-    //     gs, /* Argument passed to all callbacks */
-    //     NULL,/* Timeout specifier (NULL in our case) */
-    //     NULL,/* Handle Timeout function pointer (NULL in our case) */
-    //     NULL, /* Handle stdin (NULL in our case) */
-    //     handle_message
-    // );
-
-    // Free all gamestate memory
-    game_close(gs);
-
-    // Free seed value
-    free(seed);
-}
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -130,7 +89,7 @@ static void gold_distribute(grid_t* Grid, gold_t* Gold){
         x = randomInt(1, Grid->cols);
         y = randomInt(1, Grid->rows);
         if(grid[y][x] == '.'){
-            grid[x][y] = '*';
+            grid[y][x] = '*';
             i += 1;
         }
     }
@@ -222,12 +181,12 @@ deleteTokens(char** parsedMessage)
   }
 }
 
-void
+bool
 handleMessage(void* arg, const addr_t fromAddress, char* message)
 {
   /* if any pointer arguments are NULL, return. */
   if (arg == NULL || message == NULL) {
-    return;
+    return false;
   }
 
   /* convert arg back to gamestate */
@@ -248,7 +207,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
       fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
       free(message);
       free(tokens);
-      return;
+      return false;
     }
 
     /* run switch statement on first char of first token */
@@ -375,6 +334,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
     }
     deleteTokens(tokens);
     free(message);
+    return true;
   }
 }
 
@@ -464,4 +424,49 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   else {
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
+}
+
+int
+main(const int argc, const char* argv[])
+{
+
+  fprintf(stdout, "GOT HERE!");
+
+
+    // Parse arguments  and use seed value
+    int* seed = malloc(sizeof(int));
+    parseArgs(argc, argv, seed);
+    srand(*seed);
+
+    // Open and close map file and init gamestate object
+    FILE* fp  = fopen(argv[1], "r");
+    gamestate_t* gs = game_init(fp);
+    if(gs == NULL){
+      printf("NULL GAMESTATE!\n");
+      exit(1);
+    }
+    fclose(fp);
+
+    // Initialize network and get port number
+    int port = message_init(stderr);
+    if(port == 0){
+        fprintf(stderr, "Could not initialize message...\n");
+        exit(1);
+    }
+
+
+    // Start message loop
+    message_loop(
+        gs, /* Argument passed to all callbacks */
+        0.0,/* Timeout specifier (0 in our case) */
+        NULL,/* Handle Timeout function pointer (NULL in our case) */
+        NULL, /* Handle stdin (NULL in our case) */
+        handleMessage
+    );
+
+    // Free all gamestate memory
+    game_close(gs);
+
+    // Free seed value
+    free(seed);
 }
