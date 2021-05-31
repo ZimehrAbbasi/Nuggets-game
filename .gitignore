@@ -16,6 +16,7 @@ core
 *.o
 *.a
 a.out
+vgcore.*
 
 # Emacs backup and scratch files
 *~
@@ -43,4 +44,3 @@ player
 spectator
 grid
 gamestate
-*.o
