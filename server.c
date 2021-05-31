@@ -246,6 +246,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 
           /* add spectator to game */
           addSpectatorToGame(state, fromAddress);
+          printf("\n\n\n\n\n\n\n\n----------ADDED SPECTATOR----------\n\n\n\n\n\n\n\n");
         }
         else {
           // Oherwise end error message to from address and log to stderr
@@ -406,7 +407,7 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
 
   /* generate init message */
   char initMessage[100];                            /* No need to malloc; only used once */
-  sprintf(initMessage, "GRID %d, %d", rows, cols);
+  sprintf(initMessage, "GRID %d %d", rows, cols);
 
   /* send init message to spectator */
   spectator_send(state->spectator, initMessage);
