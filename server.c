@@ -29,53 +29,12 @@ static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
 char** tokenize(char* message);
 void deleteTokens(char** parsedMessage);
-void handleMessage(void* arg, const addr_t fromAddress, char* message);
+bool handleMessage(void* arg, const addr_t fromAddress, const char* message);
 static void handlePlayerQuit(gamestate_t* state, addr_t fromAddress);
 static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
-static void reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message);
+static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message);
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
-
-int
-main(const int argc, const char* argv[])
-{
-
-  fprintf(stdout, "GOT HERE!");
-
-
-    // Parse arguments  and use seed value
-    int* seed = malloc(sizeof(int));
-    parseArgs(argc, argv, seed);
-    srand(*seed);
-
-    // Open and close map file and init gamestate object
-    FILE* fp  = fopen(argv[1], "r");
-    gamestate_t* gs = game_init(fp);
-    fclose(fp);
-
-    // Initialize network and get port number
-    int port = message_init(stderr);
-    if(port == 0){
-        fprintf(stderr, "Could not initialize message...\n");
-        exit(1);
-    }
-
-
-    // // Start message loop
-    // message_loop(
-    //     gs, /* Argument passed to all callbacks */
-    //     NULL,/* Timeout specifier (NULL in our case) */
-    //     NULL,/* Handle Timeout function pointer (NULL in our case) */
-    //     NULL, /* Handle stdin (NULL in our case) */
-    //     handle_message
-    // );
-
-    // Free all gamestate memory
-    game_close(gs);
-
-    // Free seed value
-    free(seed);
-}
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -130,7 +89,7 @@ static void gold_distribute(grid_t* Grid, gold_t* Gold){
         x = randomInt(1, Grid->cols);
         y = randomInt(1, Grid->rows);
         if(grid[y][x] == '.'){
-            grid[x][y] = '*';
+            grid[y][x] = '*';
             i += 1;
         }
     }
@@ -222,19 +181,21 @@ deleteTokens(char** parsedMessage)
   }
 }
 
-void
-handleMessage(void* arg, const addr_t fromAddress, char* message)
+bool
+handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
   /* if any pointer arguments are NULL, return. */
   if (arg == NULL || message == NULL) {
-    return;
+    return false;
   }
 
   /* convert arg back to gamestate */
   gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
+  char* message_copy = malloc(strlen(message));
+  strcpy(message_copy, message);
   char** tokens;
-  if ( (tokens = tokenize(message)) != NULL) {
+  if ( (tokens = tokenize(message_copy)) != NULL) {
 
     /* find number of tokens */
     int numTokens = 0;
@@ -246,9 +207,10 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
       // Send malformed message back to client / spectator
       message_send(fromAddress, "ERROR malformed message\n");
       fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
-      free(message);
+      free((char*)message);
+      free(message_copy);
       free(tokens);
-      return;
+      return false;
     }
 
     /* run switch statement on first char of first token */
@@ -263,7 +225,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           //handleKey(state, fromAddress, tokens[1]); TODO: Write this fuction
         }
         else {
-          reportMalformedMessage(fromAddress, message, "is not a valid gameplay message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid gameplay message.");
           // message_send(fromAddress, "ERROR malformed message\n");
           // fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
           // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
@@ -280,7 +242,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
         }
         else {
           // Oherwise end error message to from address and log to stderr
-          reportMalformedMessage(fromAddress, message, "is not a valid add spectator message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid add spectator message.");
           // message_send(fromAddress, "ERROR malformed message\n");
           // fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
           // fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
@@ -360,13 +322,13 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
              print error flag */
           else {
             grid_delete(playerGrid);
-            reportMalformedMessage(fromAddress, message, "is not a valid player message.");
+            reportMalformedMessage(fromAddress, message_copy, "is not a valid player message.");
             // fprintf(stderr, "'%s' is not a valid add player message.\n", message);
             // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
           }
         }
         else {
-          reportMalformedMessage(fromAddress, message, "is not a valid message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid message.");
           // fprintf(stderr, "'%s' is not a valid message.\n", message);
           // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
@@ -374,8 +336,10 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
 
     }
     deleteTokens(tokens);
-    free(message);
+    free((char*)message);
+    free(message_copy);
   }
+  return true;
 }
 
 /**************** Static Functions ******************/
@@ -422,7 +386,7 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
 }
 
 static void
-reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message){
+reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   message_send(fromAddress, "ERROR malformed message\n");
   fprintf(stderr, "'%s' %s \n", givenInput, message);
   fprintf(stderr, "Invalid action sequence detected. Stop.\n");
@@ -464,4 +428,49 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   else {
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
+}
+
+int
+main(const int argc, const char* argv[])
+{
+
+  fprintf(stdout, "GOT HERE!");
+
+
+    // Parse arguments  and use seed value
+    int* seed = malloc(sizeof(int));
+    parseArgs(argc, argv, seed);
+    srand(*seed);
+
+    // Open and close map file and init gamestate object
+    FILE* fp  = fopen(argv[1], "r");
+    gamestate_t* gs = game_init(fp);
+    if(gs == NULL){
+      printf("NULL GAMESTATE!\n");
+      exit(1);
+    }
+    fclose(fp);
+
+    // Initialize network and get port number
+    int port = message_init(stderr);
+    if(port == 0){
+        fprintf(stderr, "Could not initialize message...\n");
+        exit(1);
+    }
+
+
+    // Start message loop
+    message_loop(
+        gs, /* Argument passed to all callbacks */
+        0.0,/* Timeout specifier (0 in our case) */
+        NULL,/* Handle Timeout function pointer (NULL in our case) */
+        NULL, /* Handle stdin (NULL in our case) */
+        handleMessage
+    );
+
+    // Free all gamestate memory
+    game_close(gs);
+
+    // Free seed value
+    free(seed);
 }
