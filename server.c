@@ -10,6 +10,7 @@
 #include "grid.h"
 #include "gold.h"
 
+// Global Variables
 int MaxNameLength = 50;
 int MaxPlayers = 26;
 int GoldTotal = 250;
@@ -24,7 +25,10 @@ static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
 static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
-
+char** tokenize(char* message);
+void deleteTokens(char** parsedMessage);
+void handleMessage(void* arg, const addr_t fromAddress, char* message);
+static int randomInt(int lower, int upper);
 
 int
 main(const int argc, const char* argv[])
@@ -48,10 +52,11 @@ main(const int argc, const char* argv[])
 
     // // Start message loop
     // message_loop(
-    //     /**/
-    //     ,/**/
-    //     ,/**/
-    //     ,/**/
+    //     gs, /* Argument passed to all callbacks */
+    //     NULL,/* Timeout specifier (NULL in our case) */
+    //     NULL,/* Handle Timeout function pointer (NULL in our case) */
+    //     NULL, /* Handle stdin (NULL in our case) */
+    //     handle_message
     // );
 
     // Free all gamestate memory
@@ -227,6 +232,8 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
     }
 
     if (numTokens == 0) {
+      // Send malformed message back to client / spectator
+      message_send(fromAddress, "ERROR malformed message\n");
       fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
       free(message);
       free(tokens);
@@ -245,33 +252,27 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           handleKey(state, fromAddress, tokens[1]);
         }
         else {
-          fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
-          fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+          reportMalformedMessage(fromAddress, message, "is not a valid gameplay message.");
+          // message_send(fromAddress, "ERROR malformed message\n");
+          // fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
+          // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;
 
       case 'S':
 
-        /* add spectator */
+        /* add spectator if message checks out*/
         if (numTokens == 1 && (strcmp(tokens[0], "SPECTATE") == 0) ) {
 
           /* add spectator to game */
-          gamestate_addSpectator(state, fromAddress);
-
-          /* get number of rows, columns in grid */
-          int rows = state->masterGrid->rows;
-          int cols = state->masterGrid->cols;
-
-          /* generate init message */
-          char initMessage[100];                            /* No need to malloc; only used once */
-          sprintf(initMessage, "GRID %d, %d", rows, cols);
-
-          /* send init message to spectator */
-          spectator_send(state->spectator, initMessage);
+          addSpectatorToGame(state, fromAddress);
         }
         else {
-          fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
-          fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
+          // Oherwise end error message to from address and log to stderr
+          reportMalformedMessage(fromAddress, message, "is not a valid add spectator message.");
+          // message_send(fromAddress, "ERROR malformed message\n");
+          // fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
+          // fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
         }
         break;
       case 'Q':
@@ -369,14 +370,15 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
              print error flag */
           else {
             grid_delete(playerGrid);
-            
-            fprintf(stderr, "'%s' is not a valid add player message.\n", message);
-            fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+            reportMalformedMessage(fromAddress, message, "is not a valid player message.");
+            // fprintf(stderr, "'%s' is not a valid add player message.\n", message);
+            // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
           }
         }
         else {
-          fprintf(stderr, "'%s' is not a valid message.\n", message);
-          fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+          reportMalformedMessage(fromAddress, message, "is not a valid message.");
+          // fprintf(stderr, "'%s' is not a valid message.\n", message);
+          // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;
 
@@ -410,4 +412,28 @@ randomInt(int lower, int upper)
   }
   fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
   return -1;
+}
+
+static void
+addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
+  /* add spectator to game */
+  gamestate_addSpectator(state, fromAddress);
+
+  /* get number of rows, columns in grid */
+  int rows = state->masterGrid->rows;
+  int cols = state->masterGrid->cols;
+
+  /* generate init message */
+  char initMessage[100];                            /* No need to malloc; only used once */
+  sprintf(initMessage, "GRID %d, %d", rows, cols);
+
+  /* send init message to spectator */
+  spectator_send(state->spectator, initMessage);
+}
+
+static void
+reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message){
+  message_send(fromAddress, "ERROR malformed message\n");
+  fprintf(stderr, "'%s' %s \n", givenInput, message);
+  fprintf(stderr, "Invalid action sequence detected. Stop.\n");
 }
