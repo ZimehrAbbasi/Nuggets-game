@@ -36,3 +36,11 @@ Icon?
 
 ###########################################################################
 # custom additions below here; see also .gitignore files in subdirectories.
+
+server
+gold
+player
+spectator
+grid
+gamestate
+*.o
