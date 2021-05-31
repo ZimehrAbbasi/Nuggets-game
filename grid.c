@@ -265,7 +265,9 @@ static int min(int num1, int num2){
 }
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
-
+    
+    printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
+    
     char **master_grid = Grid->g;
     char **player_grid = player->grid->g;
     double slope;
@@ -274,6 +276,9 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     bool visibility;
     for(int x = 0; x < Grid->cols; x++){
         for(int y = 0; y < Grid->rows; y++){
+            if(master_grid[y][x] == ' '){
+              continue;
+            }
             slope = calculate_slope(x, y, player->x, player->y);
             visibility = true;
             if(abs(player->y - y) > abs(player->x - x)){
@@ -281,7 +286,8 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
                     x_pred = func(y1, min(x, player->x), -1/slope);
                     upper = (int)ceil(x_pred);
                     lower = (int)floor(x_pred);
-                    
+
+                    printf("\nx: %d\ny: %d\n", x, y);
                     if(master_grid[y1][upper] != '.' || master_grid[y1][lower] != '.' || !isalpha(master_grid[y1][upper]) || !isalpha(master_grid[y1][lower])){
                         visibility = false;
                         break;      
@@ -293,6 +299,7 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
                     upper = (int)ceil(y_pred);
                     lower = (int)floor(y_pred);
                     
+                    printf("\nx: %d\ny: %d\n", x, y);
                     if(master_grid[upper][x1] != '.' || master_grid[lower][x1] != '.' || !isalpha(master_grid[upper][x1]) || !isalpha(master_grid[lower][x1])){
                         visibility = false;
                         break;      

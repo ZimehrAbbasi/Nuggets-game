@@ -37,6 +37,7 @@ static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 static bool isGameEnded(gamestate_t* state);
 static void displayForSpectator(gamestate_t* state, spectator_t* spectator);
+static void displayForPlayer(gamestate_t* state, player_t* player);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -344,26 +345,13 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   }
 
   // Send updated game state to spectator
-  //displayForSpectator(state, state->spectator);
+  displayForSpectator(state, state->spectator);
 
   // Send updated game state to all players
   int numClients = state->players_seen;
   player_t** clients = state->players;
   for(int i = 0; i < numClients; i++){
-    // Convert master grid to a string
-    grid_t* entireGrid = state->masterGrid;
-    char* masterGridAsString = grid_toString(entireGrid);
-    
-    // Create message header
-    char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10);
-    strcpy(messageHeader, "DISPLAY\n");
-    
-    // Concatenate and send message
-    strcat(messageHeader, masterGridAsString);
-    player_send(clients[i], messageHeader);
-
-    // Free created memory
-    free(masterGridAsString);
+    displayForPlayer(state, clients[i]);
   }
 
   // Check if game is ended
@@ -470,14 +458,40 @@ displayForSpectator(gamestate_t* state, spectator_t* spectator){
   char* masterGridAsString = grid_toString(entireGrid);
   
   // Create message header
-  char* messageHeader = "DISPLAY\n";
+  char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
   
   // Concatenate and send message
+  strcpy(messageHeader, "DISPLAY\n");
   strcat(messageHeader, masterGridAsString);
   spectator_send(spectator, messageHeader);
 
   // Free created memory
   free(masterGridAsString);
+}
+
+static void
+displayForPlayer(gamestate_t* state, player_t* player){
+  // Update player's visible grid
+  grid_t* entireGrid = state->masterGrid;
+  grid_calculateVisibility(entireGrid, player);
+
+  // Covert visible grid to string
+  grid_t* playerGrid = player->grid;
+  char* playerGridAsString = grid_toString(playerGrid);
+  
+  // Create message header
+  char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
+  strcpy(messageHeader, "DISPLAY\n");
+
+  /* TODO: Make a playerSpecific grid_toString function that takes in
+  * the game state so that player and gold visibility can be accounted for
+  * in the final string.
+  */ 
+  strcat(messageHeader, playerGridAsString);
+  player_send(player, messageHeader);
+
+  // Free created memory
+  free(playerGridAsString);
 }
 
 static bool
