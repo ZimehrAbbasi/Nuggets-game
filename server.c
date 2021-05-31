@@ -342,6 +342,9 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     free(message_copy);
   }
 
+  // Send updated game state to spectator
+  
+
   // Send updated game state to all players
   
 
@@ -458,7 +461,6 @@ isGameEnded(gamestate_t* state){
   } else{
     return false;
   }
-
 }
 
 
