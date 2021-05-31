@@ -13,7 +13,6 @@
 #include <stdlib.h>
 
 #include "player.h"
-#include "spectator.h"
 #include "grid.h"
 #include "gold.h"
 #include "spectator.h"
