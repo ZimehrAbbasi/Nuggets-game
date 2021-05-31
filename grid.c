@@ -5,8 +5,8 @@
 #include <string.h>
 
 
-#include "file.h"         /* file operations */
-#include "message.h"      /* message operations */
+#include "support/file.h"         /* file operations */
+#include "support/message.h"      /* message operations */
 #include "player.h"       /* player module */
 #include "gamestate.h"    /* gamestate module */
 #include "grid.h"         /* self */

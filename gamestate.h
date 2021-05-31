@@ -31,6 +31,10 @@ bool gamestate_isSpectator(gamestate_t* state, addr_t address);
 
 player_t* gamestate_findPlayerByAddress(gamestate_t* state, addr_t address);
 
+void gamestate_addPlayer(gamestate_t* state, player_t* player);
+
+void gamestate_addSpectator(gamestate_t* game, addr_t address);
+
 /*
 * Closes the game and frees all malloc'd memory in the gamestate object
 */

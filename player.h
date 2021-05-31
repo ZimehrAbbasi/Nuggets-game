@@ -16,7 +16,7 @@
 #include <stdlib.h>
 
 /* message module */
-#include "message.h"
+#include "support/message.h"
 
 typedef struct player {
   char letter;

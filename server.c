@@ -9,6 +9,8 @@
 #include "gamestate.h"
 #include "grid.h"
 #include "gold.h"
+#include "player.h"
+#include "spectator.h"
 
 // Global Variables
 int MaxNameLength = 50;
@@ -19,7 +21,7 @@ int GoldMaxNumPiles = 30;
 
 
 // Function prototypes
-void parseArgs(int argc, char* argv[], int* seed);
+void parseArgs(const int argc, const char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
 static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
@@ -28,7 +30,11 @@ void handleInput(void* arg);
 char** tokenize(char* message);
 void deleteTokens(char** parsedMessage);
 void handleMessage(void* arg, const addr_t fromAddress, char* message);
+static void handlePlayerQuit(gamestate_t* state, addr_t fromAddress);
+static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
+static void reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message);
 static int randomInt(int lower, int upper);
+static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 
 int
 main(const int argc, const char* argv[])
@@ -67,7 +73,7 @@ main(const int argc, const char* argv[])
 }
 
 void 
-parseArgs(int argc, char* argv[], int* seed)
+parseArgs(const int argc, const char* argv[], int* seed)
 {
     // Check for illegal # of arguments
     if(argc != 3){
@@ -88,7 +94,7 @@ parseArgs(int argc, char* argv[], int* seed)
 
     // Try to open map file
     FILE* fp;
-    if((fp = fopen(argv[1], "r") == NULL)){
+    if((fp = fopen(argv[1], "r")) == NULL){
         fprintf(stderr, "Could not open file...\n");
         exit(1);
     }
@@ -109,21 +115,21 @@ numberOfColumns(FILE* mapfile)
 }
 
 
-// static void gold_distribute(grid_t* Grid, gold_t* Gold){
-//     char **grid = Grid->g;
+static void gold_distribute(grid_t* Grid, gold_t* Gold){
+    char **grid = Grid->g;
 
-//     i = 0;
-//     int x, y;
+    int i = 0;
+    int x, y;
 
-//     while(i < Gold->numPiles){
-//         x = rand(1, Grid->cols);
-//         y = rand(1, Grid->rows);
-//         if(grid[y][x] == '.'){
-//             grid[x][y] = '*';
-//             i += 1;
-//         }
-//     }
-// }
+    while(i < Gold->numPiles){
+        x = randomInt(1, Grid->cols);
+        y = randomInt(1, Grid->rows);
+        if(grid[y][x] == '.'){
+            grid[x][y] = '*';
+            i += 1;
+        }
+    }
+}
 
 static
 gamestate_t* game_init(FILE* mapFile)
@@ -311,9 +317,14 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           char letter = 'A' + state->players_seen;
 
           /* get full player name */
-          char* playerName[100];
+          char playerName[MaxNameLength];
           for (int i = 1; i < numTokens; i++) {
-            strcat(playerName, tokens[i]);
+            char *temp = tokens[i];
+            if(i == 1){
+              strcpy(playerName, temp);
+            }else{
+              strcat(playerName, temp);
+            }
           }
 
           /* generate random x,y values 
@@ -328,12 +339,12 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           }
 
           /* create player */
-          player_t* newPlayer = player_init(letter, playerName, fromAddress, x, y, playerGrid);
+          player_t* newPlayer = player_new(letter, playerName, fromAddress, x, y, playerGrid);
 
           /* if player created successfully,
              add to gamestate */
           if (newPlayer != NULL) {
-            gamestate_addPlayer(newPlayer);
+            gamestate_addPlayer(state, newPlayer);
             char initMessage[100];
             sprintf(initMessage, "GRID %d, %d", rows, cols);
             player_send(newPlayer, initMessage);

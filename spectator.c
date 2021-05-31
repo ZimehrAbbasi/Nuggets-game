@@ -13,7 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "message.h"    /* message module */
+#include "support/message.h"    /* message module */
 #include "spectator.h"  /* self */
 
 spectator_t* 

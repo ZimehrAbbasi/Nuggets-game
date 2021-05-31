@@ -23,6 +23,8 @@ typedef struct grid {
   int cols;
 } grid_t;
 
+typedef struct player player_t;
+
 grid_t* grid_init(FILE* mapfile);
 
 grid_t* grid_initForPlayer(grid_t* masterGrid);

@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "message.h"  /* message module */
+#include "support/message.h"  /* message module */
 
 typedef struct spectator {
   addr_t address;

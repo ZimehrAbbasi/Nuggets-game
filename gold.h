@@ -32,6 +32,6 @@ void gold_delete(gold_t* gold);
 
 void gold_assign(gold_t* gold, player_t* player);
 
-void gold_distribute(grid_t* grid, gold_t* gold);
+static void gold_distribute(grid_t* grid, gold_t* gold);
 
 #endif /* __GOLD_H */

@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #include "player.h" /* player module */
-#include "message.h"  /* message module */
+#include "support/message.h"  /* message module */
 #include "grid.h"     /* grid module */
 
 
