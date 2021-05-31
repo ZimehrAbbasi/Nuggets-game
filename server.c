@@ -29,10 +29,10 @@ static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
 char** tokenize(char* message);
 void deleteTokens(char** parsedMessage);
-bool handleMessage(void* arg, const addr_t fromAddress, char* message);
+bool handleMessage(void* arg, const addr_t fromAddress, const char* message);
 static void handlePlayerQuit(gamestate_t* state, addr_t fromAddress);
 static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
-static void reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message);
+static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message);
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 
@@ -182,7 +182,7 @@ deleteTokens(char** parsedMessage)
 }
 
 bool
-handleMessage(void* arg, const addr_t fromAddress, char* message)
+handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
   /* if any pointer arguments are NULL, return. */
   if (arg == NULL || message == NULL) {
@@ -192,8 +192,10 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
   /* convert arg back to gamestate */
   gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
+  char* message_copy = malloc(strlen(message));
+  strcpy(message_copy, message);
   char** tokens;
-  if ( (tokens = tokenize(message)) != NULL) {
+  if ( (tokens = tokenize(message_copy)) != NULL) {
 
     /* find number of tokens */
     int numTokens = 0;
@@ -205,7 +207,8 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
       // Send malformed message back to client / spectator
       message_send(fromAddress, "ERROR malformed message\n");
       fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
-      free(message);
+      free((char*)message);
+      free(message_copy);
       free(tokens);
       return false;
     }
@@ -222,7 +225,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
           //handleKey(state, fromAddress, tokens[1]); TODO: Write this fuction
         }
         else {
-          reportMalformedMessage(fromAddress, message, "is not a valid gameplay message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid gameplay message.");
           // message_send(fromAddress, "ERROR malformed message\n");
           // fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
           // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
@@ -239,7 +242,7 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
         }
         else {
           // Oherwise end error message to from address and log to stderr
-          reportMalformedMessage(fromAddress, message, "is not a valid add spectator message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid add spectator message.");
           // message_send(fromAddress, "ERROR malformed message\n");
           // fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
           // fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
@@ -319,13 +322,13 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
              print error flag */
           else {
             grid_delete(playerGrid);
-            reportMalformedMessage(fromAddress, message, "is not a valid player message.");
+            reportMalformedMessage(fromAddress, message_copy, "is not a valid player message.");
             // fprintf(stderr, "'%s' is not a valid add player message.\n", message);
             // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
           }
         }
         else {
-          reportMalformedMessage(fromAddress, message, "is not a valid message.");
+          reportMalformedMessage(fromAddress, message_copy, "is not a valid message.");
           // fprintf(stderr, "'%s' is not a valid message.\n", message);
           // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
@@ -333,9 +336,10 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
 
     }
     deleteTokens(tokens);
-    free(message);
-    return true;
+    free((char*)message);
+    free(message_copy);
   }
+  return true;
 }
 
 /**************** Static Functions ******************/
@@ -382,7 +386,7 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
 }
 
 static void
-reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message){
+reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   message_send(fromAddress, "ERROR malformed message\n");
   fprintf(stderr, "'%s' %s \n", givenInput, message);
   fprintf(stderr, "Invalid action sequence detected. Stop.\n");
