@@ -12,39 +12,6 @@
 #include "player.h"
 #include "spectator.h"
 
-<<<<<<< HEAD
-int MaxNameLength = 50;
-int numPlayers = 0;
-int MaxPlayers = 26;
-int GoldTotal = 250;
-int GoldMinNumPiles = 10;
-int GoldMaxNumPiles = 30;
-
-typedef struct gameState{
-    struct player *allPlayers;
-    struct gold gameGold;
-    struct grid master_grid; 
-    int numRows;
-    int numCols;
-} gameState_t;
-
-typedef struct player{
-    addr_t* address;
-    int gold;
-    int x;
-    int y;
-    char *player_grid[][];
-} player_t;
-
-typedef struct gold{
-    int* totalGold;
-    int goldremaining;
-    int numPiles;
-    int index;
-} gold_t;
-
-void parseArgs(int argc, char* argv[], int* seed){
-=======
 // Global Variables
 const int MaxNameLength = 50;
 const int MaxPlayers = 26;
@@ -76,7 +43,6 @@ void
 parseArgs(const int argc, const char* argv[], int* seed)
 {
     // Check for illegal # of arguments
->>>>>>> main
     if(argc != 3){
         fprintf(stderr, "Illegal number of arguments...\n");
         exit(1);
@@ -141,31 +107,6 @@ gamestate_t* game_init(FILE* mapFile)
     exit(1);
   }
     
-<<<<<<< HEAD
-    gameState_t* gameState = malloc(sizeof(gameState_t));
-
-    if(gameState == NULL){
-        return gameState;
-    }else{
-        gameState->allPlayers = malloc(sizeof(player_t)*26);
-        gameState->gameGold = malloc(sizeof(gold_t));
-        int numPiles = rand(10, 30);
-        gameState->gameGold->totalGold = malloc(numPiles*sizeof(int));
-        gameState->gameGold->numPiles = numPiles;
-        gameState->gameGold->goldremaining = GoldTotal;
-        gameState->gameGold->index = 0;
-        int numRows = file_numLines(mapfile);
-        int numCols = numberOfColumns(mapfile);
-        gameState->master_grid = grid_init(mapfile, numRows, numCols);
-        if(gameState->master_grid == NULL){
-            fprintf(stderr, "Could not create grid...\n");
-            exit(1);
-        }
-        gameState->master_grid.rows = numRow;
-        gameState->master_grid.cols = numCols;
-        gold_init(gameState->gameGold, numPiles);
-        gold_distribute(gameState->master_grid, gameState->gameGold);
-=======
   // Create gamestate pointer and call gamestate_init()
   gamestate_t* gameState = gamestate_init(mapFile);
 
@@ -236,7 +177,6 @@ deleteTokens(char** parsedMessage)
     /* step through the tokens and free each token */
     for (int i = 0; parsedMessage[i] != NULL; i++) {
       free(parsedMessage[i]);
->>>>>>> main
     }
 
     /* free the holder */

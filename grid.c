@@ -249,11 +249,11 @@ static double calculate_slope(int x1, int y1, int x2, int y2){
         return DBL_MAX;
     }
 
-    return (x1 - x2)/(y1 - y2);
+    return ((double)(x1 - x2))/((double)(y1 - y2));
 }
 
 static double func(int x, int y, double slope){
-    return ((slope * x) + y);
+    return ((slope * (double)x) + (double)y);
 }
 
 static int max(int num1, int num2){
@@ -274,8 +274,16 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     double x_pred, y_pred;
     int upper, lower;
     bool visibility;
-    for(int x = 0; x < Grid->cols; x++){
-        for(int y = 0; y < Grid->rows; y++){
+	master_grid[player->y][player->x] = 'A';
+	for(int y = 0; y < Grid->rows; y++){
+		for(int x = 0; x < Grid->cols; x++){
+			printf("%c", master_grid[y][x]);
+		}
+		printf("\n");
+	}
+	
+	for(int y = 0; y < Grid->rows; y++){
+    	for(int x = 0; x < Grid->cols; x++){
             if(master_grid[y][x] == ' '){
               continue;
             }
@@ -283,44 +291,39 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
             visibility = true;
             if(abs(player->y - y) > abs(player->x - x)){
                 for(int y1 = min(y, player->y)+1; y1 < max(y, player->y); y1++){
-                    x_pred = func(y1, min(x, player->x), -1/slope);
-                    if(max(x, player->x) < x_pred){
+                    x_pred = func(y1, min(x, player->x), 1/slope);
+                    if(x_pred < 0 || x_pred > Grid->cols){
                       continue;
                     }
                     upper = (int)ceil(x_pred);
                     lower = (int)floor(x_pred);
-
-                    printf("\nx: %d\ny: %d\n", x, y);
-                    if(master_grid[y1][upper] != '.' || master_grid[y1][lower] != '.' || !isalpha(master_grid[y1][upper]) || !isalpha(master_grid[y1][lower])){
-                        visibility = false;
-                        break;      
+                    if(!grid_isSpace(Grid, upper, y1) || !grid_isSpace(Grid, lower, y1) || !grid_isPlayer(Grid, upper, y1) || !grid_isPlayer(Grid, lower, y1)){
+                      	visibility = false;
+                      	break; 
                     }
                 }
             }else{
                 for(int x1 = min(x, player->x); x1 < max(x, player->x); x1++){
-                    y_pred = func(x1, min(y, player->y), slope);
-                    if(max(y, player->y) < y_pred){
+                    y_pred = func(x1, min(y, player->y), -slope);
+                    if(y_pred < 0 || y_pred > Grid->rows){
                       continue;
                     }
                     upper = (int)ceil(y_pred);
                     lower = (int)floor(y_pred);
-                    
-                    printf("\nx1: %d\nupper: %d\nlower: %d\n", x1, upper, lower);
-                    if(master_grid[upper][x1] != '.' || master_grid[lower][x1] != '.' || !isalpha(master_grid[upper][x1]) || !isalpha(master_grid[lower][x1])){
-                        visibility = false;
-                        break;
+                    if(!grid_isSpace(Grid, upper, x1) || !grid_isSpace(Grid, lower, x1) || !grid_isPlayer(Grid, upper, x1) || !grid_isPlayer(Grid, lower, x1)){
+                      	visibility = false;
+                      	break; 
                     }
                 }
             }
 
             if(visibility){
-                player_grid[y][x] = master_grid[x][y];
+                player_grid[y][x] = master_grid[y][x];
             }else{
                 if(grid_isGold(Grid, x, y)){
                     player_grid[y][x] = '.';
                 }
             }
-
         }
     }
 
