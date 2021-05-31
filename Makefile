@@ -1,6 +1,6 @@
 L = support
 
-CFLAGS= -Wall -pedantic -std=c11 -ggdb -lm -I$L -I$(LC)
+CFLAGS= -Wall -pedantic -std=c11 -ggdb -lm -I$L -I$(L)
 CC=gcc
 
 # PROG = server
