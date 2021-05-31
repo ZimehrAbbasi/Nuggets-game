@@ -43,20 +43,20 @@ grid_t* grid_init(FILE* mapfile) {
     grid->cols = cols;
 
     /* create map representation */
-    grid->g = malloc(rows);
+    grid->g = malloc((rows+1) * sizeof(char*));
 
     /* allocate rows */
+    char** temp = grid->g;
     for(int i=0; i<rows; i++){
-      grid->g[i] = malloc(cols);
+      temp[i] = malloc(cols+1);
     }
 
     /* copy lines from file as rows */
     int j = 0;
     char* line;
     while( (line = file_readLine(mapfile)) != NULL){
-      strcpy(grid->g[j++], line);
+      strcpy(temp[j++], line);
     }
-
     /* return grid */
     return grid;
   }

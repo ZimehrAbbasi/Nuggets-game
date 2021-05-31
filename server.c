@@ -39,6 +39,10 @@ static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 int
 main(const int argc, const char* argv[])
 {
+
+  fprintf(stdout, "GOT HERE!");
+
+
     // Parse arguments  and use seed value
     int* seed = malloc(sizeof(int));
     parseArgs(argc, argv, seed);
@@ -55,6 +59,7 @@ main(const int argc, const char* argv[])
         fprintf(stderr, "Could not initialize message...\n");
         exit(1);
     }
+
 
     // // Start message loop
     // message_loop(

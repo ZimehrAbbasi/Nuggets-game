@@ -34,6 +34,8 @@ player_t* player_new(char letter, char* name, addr_t address, int x, int y, grid
 
 void player_send(player_t* player, char* message);
 
+char player_getLetter(player_t* player);
+
 void player_addGold(player_t* player, int num);
 
 int player_getGold(player_t* player);
