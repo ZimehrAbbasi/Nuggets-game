@@ -1,7 +1,7 @@
-# L = support
+L = support
 
-# CFLAGS= -Wall -pedantic -std=c11 -ggdb -I$L -I$(LC)
-# CC=gcc
+CFLAGS= -Wall -pedantic -std=c11 -ggdb -lm -I$L -I$(LC)
+CC=gcc
 
 # PROG = server
 # OBJS = server.o
@@ -23,4 +23,4 @@
 # 	rm -rf $(PROG)
 
 all:
-	mygcc server.c gamestate.c gold.c grid.c player.c spectator.c support/message.c support/log.c support/file.c -lm -o server
+	$(CC) $(CFLAGS) server.c gamestate.c gold.c grid.c player.c spectator.c support/message.c support/log.c support/file.c -lm -o server
