@@ -281,43 +281,17 @@ handleMessage(void* arg, const addr_t fromAddress, char* message)
 
           /* if address matches spectator in the game... */
           if (gamestate_isSpectator(state, fromAddress)) {
-
-            /* get spectator */
-            spectator_t* spectator = state->spectator;
-
-            /* send QUIT message to spectator */
-            spectator_send(spectator, "QUIT Thank you for watching!");
-
-            /* delete spectator */
-            spectator_delete(spectator);
-
-            /* reset pointer to NULL 
-               (just so we don't get any surprises) */
-            state->spectator = NULL;
+            // Handle spectator quit
+            handleSpectatorQuit(state, fromAddress);
           }
 
           /* else -->
              if address doesn't match the current spectator,
              search for player instead.
              
-             then no match was found. print error message. */
+             then, if, no match was found. print error message. */
           else {
-            player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
-            if (player != NULL) {
-              player_send(player, "QUIT Thank you for playing!");
-
-              /* We don't actually delete the player from the game 
-                 because we need to keep their information
-                 until end of game. */
-            }
-
-            /* if the search function returns NULL, 
-               no player was found. 
-               print to stderr. */
-            else {
-              fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
-            }
-
+            handlePlayerQuit(state, fromAddress);
           }
         }
         break;
@@ -436,4 +410,42 @@ reportMalformedMessage(addr_t fromAddress, char* givenInput, const char* message
   message_send(fromAddress, "ERROR malformed message\n");
   fprintf(stderr, "'%s' %s \n", givenInput, message);
   fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+}
+
+static void
+handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
+  /* get spectator */
+  spectator_t* spectator = state->spectator;
+
+  /* send QUIT message to spectator */
+  spectator_send(spectator, "QUIT Thank you for watching!");
+
+  /* delete spectator */
+  spectator_delete(spectator);
+
+  /* reset state spectator pointer to NULL 
+      (just so we don't get any surprises) */
+  state->spectator = NULL;
+}
+
+static void
+handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
+  /* We don't actually delete the player from the game 
+    because we need to keep their information
+    until end of game. */
+
+  // Search for player with matching address in gamestate
+  player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
+
+  // If we find a matching player in the game, let them quit
+  if (player != NULL) {
+    player_send(player, "QUIT Thank you for playing!");
+  }
+
+  /* if the search function returns NULL, 
+      no player was found. 
+      print to stderr. */
+  else {
+    fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
+  }
 }
