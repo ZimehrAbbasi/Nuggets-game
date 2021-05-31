@@ -38,6 +38,9 @@ static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 static bool isGameEnded(gamestate_t* state);
 static void displayForSpectator(gamestate_t* state, spectator_t* spectator);
 static void displayForPlayer(gamestate_t* state, player_t* player);
+static int getRemainingGold(gamestate_t* state);
+static void sendGoldToPlayers(gamestate_t* state);
+static void sendPlayerOK(player_t* player);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -319,6 +322,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
             char initMessage[100];
             sprintf(initMessage, "GRID %d %d", rows, cols);
             player_send(newPlayer, initMessage);
+            sendPlayerOK(newPlayer);
           }
 
           /* if player creation failed, 
@@ -353,6 +357,8 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   for(int i = 0; i < numClients; i++){
     displayForPlayer(state, clients[i]);
   }
+
+  sendGoldToPlayers(state);
 
   // Check if game is ended
   if(!isGameEnded(state)){
@@ -473,7 +479,8 @@ static void
 displayForPlayer(gamestate_t* state, player_t* player){
   // Update player's visible grid
   grid_t* entireGrid = state->masterGrid;
-  grid_calculateVisibility(entireGrid, player);
+  //grid_calculateVisibility(entireGrid, player);
+  player->grid = entireGrid;
 
   // Covert visible grid to string
   grid_t* playerGrid = player->grid;
@@ -512,6 +519,53 @@ isGameEnded(gamestate_t* state){
   }
 }
 
+static void
+sendGoldToPlayers(gamestate_t* state){
+  // Loop over every player
+  player_t** allPlayers = state->players;
+  int numPlayers = state->players_seen;
+
+  for(int i = 0; i < numPlayers; i++){
+    // Get n, p and r
+    int currentPlayerGold = allPlayers[i]->gold;
+    int justCollectedGold = 0;
+    int goldLeftInGame = getRemainingGold(state);
+
+    // Format and send message
+    char* goldMessage = malloc(sizeof(char) * 100);
+    sprintf(goldMessage,
+    "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
+
+    player_send(allPlayers[i], goldMessage);
+
+    // Free used memory
+    free(goldMessage);
+  }
+}
+
+static int
+getRemainingGold(gamestate_t* state){
+  gold_t* gamestateGold = state->gameGold;
+  int goldLeft = 0;
+  int currentIndex = gamestateGold->index;
+
+  for(int i = currentIndex; i < gamestateGold->numPiles; i++){
+    goldLeft += gamestateGold->goldCounter[i];
+  }
+
+  return goldLeft;
+}
+
+
+static void 
+sendPlayerOK(player_t* player){
+  // Generate message from player data
+  char okMessage[10];
+  sprintf(okMessage, "OK %c", player->letter);
+
+  // Send message to player
+  player_send(player, okMessage);
+}
 
 int
 main(const int argc, const char* argv[])
