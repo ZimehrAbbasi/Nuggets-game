@@ -104,7 +104,7 @@ char* grid_toString(grid_t* grid){
   if (grid == NULL){
     return NULL;
   }
-  char* stringifiedGrid = malloc(grid->rows * grid->cols);
+  char* stringifiedGrid = malloc(((grid->rows)*sizeof(char*)) * grid->cols);
   char** map = grid->g;
   for(int x = 0; x < grid->rows; x++){
     strcat(stringifiedGrid, map[x]);

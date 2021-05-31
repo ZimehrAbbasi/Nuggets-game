@@ -36,6 +36,7 @@ static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* m
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
 static bool isGameEnded(gamestate_t* state);
+static void displayForSpectator(gamestate_t* state, spectator_t* spectator);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -343,10 +344,27 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   }
 
   // Send updated game state to spectator
-  
+  //displayForSpectator(state, state->spectator);
 
   // Send updated game state to all players
-  
+  int numClients = state->players_seen;
+  player_t** clients = state->players;
+  for(int i = 0; i < numClients; i++){
+    // Convert master grid to a string
+    grid_t* entireGrid = state->masterGrid;
+    char* masterGridAsString = grid_toString(entireGrid);
+    
+    // Create message header
+    char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10);
+    strcpy(messageHeader, "DISPLAY\n");
+    
+    // Concatenate and send message
+    strcat(messageHeader, masterGridAsString);
+    player_send(clients[i], messageHeader);
+
+    // Free created memory
+    free(masterGridAsString);
+  }
 
   // Check if game is ended
   if(!isGameEnded(state)){
@@ -443,6 +461,23 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   else {
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
+}
+
+static void
+displayForSpectator(gamestate_t* state, spectator_t* spectator){
+  // Convert master grid to a string
+  grid_t* entireGrid = state->masterGrid;
+  char* masterGridAsString = grid_toString(entireGrid);
+  
+  // Create message header
+  char* messageHeader = "DISPLAY\n";
+  
+  // Concatenate and send message
+  strcat(messageHeader, masterGridAsString);
+  spectator_send(spectator, messageHeader);
+
+  // Free created memory
+  free(masterGridAsString);
 }
 
 static bool
