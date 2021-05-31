@@ -361,7 +361,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
  * and generates unbounded values
  * 
  * @param lower: lower bound, inclusive
- * @param upper: upper bound, inclusive
+ * @param upper: upper bound, exclusive
  * @return int: a random value between the lower and upper bound.
  */
 static int
