@@ -80,7 +80,7 @@ grid_initForPlayer(grid_t* masterGrid)
     grid->cols = masterGrid->cols;
 
     /* create map representation */
-    grid->g = malloc(masterGrid->rows);
+    grid->g = malloc((masterGrid->rows + 1) * sizeof(char*));
 
     /* allocate rows */
     for(int i=0; i<masterGrid->rows; i++){

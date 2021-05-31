@@ -315,7 +315,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
           if (newPlayer != NULL) {
             gamestate_addPlayer(state, newPlayer);
             char initMessage[100];
-            sprintf(initMessage, "GRID %d, %d", rows, cols);
+            sprintf(initMessage, "GRID %d %d", rows, cols);
             player_send(newPlayer, initMessage);
           }
 
@@ -342,7 +342,10 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     free(message_copy);
   }
 
+  // Send updated game state to all players
+  
 
+  // Check if game is ended
   if(!isGameEnded(state)){
     return false;
   }else{
