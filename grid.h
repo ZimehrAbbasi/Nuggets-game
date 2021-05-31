@@ -16,12 +16,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 typedef struct grid {
   char** g;
   int rows;
   int cols;
 } grid_t;
+
+typedef struct player player_t;
 
 grid_t* grid_init(FILE* mapfile);
 
@@ -33,7 +36,7 @@ void grid_delete(grid_t* grid);
 
 int grid_getRows(grid_t* grid);
 
-int grid_getRows(grid_t* grid);
+int grid_getColumns(grid_t* grid);
 
 char** grid_getGrid(grid_t* grid);
 

@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #include "player.h" /* player module */
-#include "message.h"  /* message module */
+#include "support/message.h"  /* message module */
 #include "grid.h"     /* grid module */
 
 
@@ -32,12 +32,8 @@ player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid)
   player->x = x;
   player->y = y;
   player->grid = grid;
-}
 
-void
-player_send(player_t* player, char* message)
-{
-  message_send(player->address, message);
+  return player;
 }
 
 void

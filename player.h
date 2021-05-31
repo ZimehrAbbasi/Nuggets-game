@@ -16,7 +16,8 @@
 #include <stdlib.h>
 
 /* message module */
-#include "message.h"
+#include "support/message.h"
+#include "grid.h"
 
 typedef struct player {
   char letter;
@@ -32,6 +33,8 @@ typedef struct player {
 player_t* player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid);
 
 void player_send(player_t* player, char* message);
+
+char player_getLetter(player_t* player);
 
 void player_addGold(player_t* player, int num);
 

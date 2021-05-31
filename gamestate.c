@@ -19,6 +19,12 @@
 #include "spectator.h"
 #include "gamestate.h"
 
+static void gamestate_initPlayers(gamestate_t* state);
+static void gamestate_initGold(gamestate_t* state);
+static void gamestate_initGrid(gamestate_t* state, FILE* mapFile);
+static void gamestate_initSpectator(gamestate_t* state);
+static void gamestate_playersDeleteHelper(gamestate_t* state);
+
 gamestate_t*
 gamestate_init(FILE* mapFile)
 {
@@ -78,7 +84,7 @@ gamestate_playersDeleteHelper(gamestate_t* state){
   }
 }
 
-gamestate_t**
+player_t**
 gamestate_getPlayers(gamestate_t* game)
 {
   return game->players;
