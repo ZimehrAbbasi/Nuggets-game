@@ -35,6 +35,7 @@ static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
 static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message);
 static int randomInt(int lower, int upper);
 static void handleSpectatorQuit(gamestate_t* state, addr_t fromAddress);
+static bool isGameEnded(gamestate_t* state);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -184,9 +185,10 @@ deleteTokens(char** parsedMessage)
 bool
 handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
-  /* if any pointer arguments are NULL, return. */
+  /* if any pointer arguments are NULL, return true and terminate game loop. */
   if (arg == NULL || message == NULL) {
-    return false;
+    fprintf(stderr, "Entered message loop without gamestate. Fatal error occurred");
+    return true;
   }
 
   /* convert arg back to gamestate */
@@ -339,7 +341,14 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     free((char*)message);
     free(message_copy);
   }
-  return true;
+
+
+  if(!isGameEnded(state)){
+    return false;
+  }else{
+    // Do things for when game is over
+    return true;
+  }
 }
 
 /**************** Static Functions ******************/
@@ -429,6 +438,26 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
 }
+
+static bool
+isGameEnded(gamestate_t* state){
+  // Get gold object from game state
+  gold_t* gold_from_state = state->gameGold;
+  
+  // See if we have collected all gold piles
+  // (if index == num_gold_piles)
+  int index = gold_from_state->index;
+  int num_gold_piles = gold_from_state->numPiles;
+
+
+  if(index >= num_gold_piles){
+    return true;
+  } else{
+    return false;
+  }
+
+}
+
 
 int
 main(const int argc, const char* argv[])
