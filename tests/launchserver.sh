@@ -12,11 +12,12 @@ function runserver()
 {
   local __mapfile=$1
   local __seedval=$2
-  ../server ../maps/main.txt 257573 &> temp.out &
+  ../server $__mapfile $__seedval &> temp.out &
   sleep 3
   local portnum=`sed -n '${s/.* //; p}' temp.out`
+  rm -f temp.out
   echo "$portnum"
-  sed -e "s/^\'//" -e "s/\'$//" <<< "$portnum"
+  # sed -e "s/^\'//" -e "s/\'$//" <<< "$portnum"
   # echo "$portnum"
 }
 
