@@ -1,9 +1,13 @@
 /**
- * @file gamestate.h
- * @author your name (you@domain.com)
- * @brief 
+ * @file gamestate.c
+ * @author TEAM PINE
+ * @brief: exports functionality for the gamestate module.
+ * The gamestate holds all the other variables in the game
+ * such as the gold, spectators, and player, and is passed
+ * into handleMessage as a way for handleMessage to interact 
+ * with the state of the ongoing game.
  * @version 0.1
- * @date 2021-05-26
+ * @date 2021-05-25
  * 
  * @copyright Copyright (c) 2021
  * 

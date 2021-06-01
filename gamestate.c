@@ -1,7 +1,7 @@
 /**
  * @file gamestate.c
  * @author TEAM PINE
- * @brief: functionality for gamestate
+ * @brief: implements functionality for the gamestate module.
  * The gamestate holds all the other variables in the game
  * such as the gold, spectators, and player, and is passed
  * into handleMessage as a way for handleMessage to interact 
