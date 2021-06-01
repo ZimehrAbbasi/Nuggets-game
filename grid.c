@@ -555,7 +555,7 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 			if(visibility){
 					player_grid[y][x] = master_grid[y][x];
           if(grid_isGold(Grid, x, y)){
-						player_grid[y][x] = "*";
+						player_grid[y][x] = '*';
 					}
 				}
         }
