@@ -150,7 +150,9 @@ char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
     int otherPlayerY = allPlayers[i]->y;
 
     if( grid_isPlayerVisible(copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
-      copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
+			if(!allPlayers[i]->hasQuit){
+				copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
+			}
     }
   }
   char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
@@ -182,7 +184,9 @@ grid_toString(gamestate_t* state, grid_t* grid)
     int currentPlayerX = allPlayers[i]->x;
     int currentPlayerY = allPlayers[i]->y;
 
-    copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
+		if(!allPlayers[i]->hasQuit){
+			copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
+		}
   }
   char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
   char** map = copy->g;
@@ -212,7 +216,9 @@ grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
       char letter = player_getLetter(players[i]);
       int pos = cols*(y) + y + x;            /* (length of previous cols) + ("\n" ) + pos in current row */ 
 
-      map[pos] = letter;
+			if(!players[i]->hasQuit){
+				map[pos] = letter;
+			}
     }
   }
   return map;
@@ -362,9 +368,6 @@ static int quadrant(int x1, int y1, int x2, int y2){
 }
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
-    
-    printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
-    
     char **master_grid = Grid->g;
     char **player_grid = player->grid->g;
     double slope;

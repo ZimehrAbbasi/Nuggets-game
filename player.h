@@ -36,6 +36,7 @@ typedef struct player {
   int x;
   int y;
   grid_t* grid;
+  bool hasQuit;
 } player_t;
 
 /**

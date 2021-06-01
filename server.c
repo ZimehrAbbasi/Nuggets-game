@@ -543,6 +543,7 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
 
   // If we find a matching player in the game, let them quit
   if (player != NULL) {
+    player->hasQuit = true;
     player_send(player, "QUIT Thank you for playing!");
   }
 

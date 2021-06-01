@@ -52,6 +52,7 @@ player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid)
 
   player->address = address;
   player->gold = 0;
+  player->hasQuit = false;
   player->x = x;
   player->y = y;
   player->grid = grid;
