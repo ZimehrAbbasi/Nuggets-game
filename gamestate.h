@@ -1,5 +1,5 @@
 /**
- * @file gamestate.c
+ * @file gamestate.h
  * @author TEAM PINE
  * @brief: exports functionality for the gamestate module.
  * The gamestate holds all the other variables in the game
