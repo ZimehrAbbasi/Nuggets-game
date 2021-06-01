@@ -131,6 +131,42 @@ grid_copy(grid_t* originalGrid)
   return copy;
 }
 
+
+char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
+  if (state == NULL || current_player == NULL) {
+    return NULL;
+  }
+  
+  // Get a copy of the master grid
+  grid_t* copy = grid_copy(current_player->grid);
+
+  // Alias player grid
+  grid_t* player_grid = current_player->grid;
+
+  // Loop through and add player chars for associated points into copy of grid
+  player_t** allPlayers = state->players;
+  for(int i = 0; i < state->players_seen; i++){
+    int otherPlayerX = allPlayers[i]->x;
+    int otherPlayerY = allPlayers[i]->y;
+
+    if( grid_isPlayerVisible(copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
+      copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
+    }
+  }
+  char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
+  char** map = copy->g;
+  for(int x = 0; x < copy->rows; x++){
+    strcat(stringifiedGrid, map[x]);
+    if (x != copy->rows-1) {
+      strcat(stringifiedGrid, "\n");
+    }
+  }
+  // Free copy of grid
+  grid_delete(copy);
+  // Return stringified result
+  return stringifiedGrid;
+}
+
 char*
 grid_toString(gamestate_t* state, grid_t* grid)
 {
@@ -145,6 +181,7 @@ grid_toString(gamestate_t* state, grid_t* grid)
     // Update copy of grid with player letters
     int currentPlayerX = allPlayers[i]->x;
     int currentPlayerY = allPlayers[i]->y;
+
     copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
   }
   char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
@@ -325,6 +362,7 @@ static int quadrant(int x1, int y1, int x2, int y2){
 		return 4;
 	}
 }
+
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
     
     printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
@@ -848,9 +886,10 @@ bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
 }
 
 void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
-    grid_t* master = gameState->masterGrid;
-    gold_t* gameGold = gameState->gameGold;
-	char** player_grid = player->grid->g;
+  	grid_t* master = gameState->masterGrid;
+ 	gold_t* gameGold = gameState->gameGold;
+	
+  	char** player_grid = player->grid->g;
 	char** master_grid = master->g;
 	int* gold_array = gameGold->goldCounter;
 
@@ -858,12 +897,12 @@ void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 		player_grid[player->y][player->x] = '.';
 		master_grid[player->y][player->x] = '.';
 
-        player->x = x;
+		player->x = x;
 		player->y = y;
-        
-        player->gold = gold_array[gameGold->index];
-        // gameGold->goldremaining -= gold_array[gameGold->index];
-        gameGold->index += 1;
+			
+		player->gold = gold_array[gameGold->index];
+		// gameGold->goldremaining -= gold_array[gameGold->index];
+		gameGold->index += 1;
         
         master_grid[y][x] = player->letter;
 		player_grid[y][x] = player->letter;
@@ -875,25 +914,28 @@ void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
         for(int i = 0; i < 26;i++){
 			player_t* otherPlayer = players[i];
 			if (otherPlayer->x == x && otherPlayer->y == y){
-                otherPlayer->x = player->x;
-                otherPlayer->y = player->y;
-                char** other_grid = otherPlayer->grid->g;
+				otherPlayer->x = player->x;
+				otherPlayer->y = player->y;
+				
+				char** other_grid = otherPlayer->grid->g;
+						
 				other_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
 				master_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
 				break;
 			}
 		}
         
-        player->x = x;
+    player->x = x;
 		player->y = y;
-        master_grid[y][x] = player->letter;
+    
+    master_grid[y][x] = player->letter;
 		player_grid[y][x] = player->letter;
 
 	}else{
-        player_grid[player->y][player->x] = '.';
+    player_grid[player->y][player->x] = '.';
 		master_grid[player->y][player->x] = '.';
 
-        player->x = x;
+    player->x = x;
 		player->y = y;
 
 		master_grid[y][x] = player->letter;
