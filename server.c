@@ -246,7 +246,6 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 
           /* add spectator to game */
           addSpectatorToGame(state, fromAddress);
-          printf("\n\n\n\n\n\n\n\n----------ADDED SPECTATOR----------\n\n\n\n\n\n\n\n");
         }
         else {
           // Oherwise end error message to from address and log to stderr
