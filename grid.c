@@ -131,6 +131,42 @@ grid_copy(grid_t* originalGrid)
   return copy;
 }
 
+
+char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
+  if (state == NULL || current_player == NULL) {
+    return NULL;
+  }
+  
+  // Get a copy of the master grid
+  grid_t* copy = grid_copy(current_player->grid);
+
+  // Alias player grid
+  grid_t* player_grid = current_player->grid;
+
+  // Loop through and add player chars for associated points into copy of grid
+  player_t** allPlayers = state->players;
+  for(int i = 0; i < state->players_seen; i++){
+    int otherPlayerX = allPlayers[i]->x;
+    int otherPlayerY = allPlayers[i]->y;
+
+    if( grid_isPlayerVisible(copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
+      copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
+    }
+  }
+  char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
+  char** map = copy->g;
+  for(int x = 0; x < copy->rows; x++){
+    strcat(stringifiedGrid, map[x]);
+    if (x != copy->rows-1) {
+      strcat(stringifiedGrid, "\n");
+    }
+  }
+  // Free copy of grid
+  grid_delete(copy);
+  // Return stringified result
+  return stringifiedGrid;
+}
+
 char*
 grid_toString(gamestate_t* state, grid_t* grid)
 {
@@ -145,6 +181,7 @@ grid_toString(gamestate_t* state, grid_t* grid)
     // Update copy of grid with player letters
     int currentPlayerX = allPlayers[i]->x;
     int currentPlayerY = allPlayers[i]->y;
+
     copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
   }
   char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
@@ -325,6 +362,7 @@ static int quadrant(int x1, int y1, int x2, int y2){
 		return 4;
 	}
 }
+
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
     
     printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
@@ -335,14 +373,6 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     double x_pred, y_pred;
     int upper, lower;
     bool visibility;
-	master_grid[player->y][player->x] = 'A';
-	for(int y = 0; y < Grid->rows; y++){
-		for(int x = 0; x < Grid->cols; x++){
-			printf("%c", master_grid[y][x]);
-		}
-		printf("\n");
-	}
-	player_grid[player->y][player->x] = 'A';
 	for(int y = 0; y < Grid->rows; y++){
     	for(int x = 0; x < Grid->cols; x++){
 			if(master_grid[y][x] == ' '){
@@ -416,49 +446,96 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 			visibility = true;
 			int quad = quadrant(x, y, player->x, player->y);
 			if(quad == 1 || quad == 2){
-				slope = calculate_slope(player->x, player->y, x, y);
-				for(int y1 = 0; y1 < player->y - y; y1++){
-					x_pred = y1 * slope;
-					double x_new = player->x - x_pred;
-					int y_new = player->y - y1;
-					upper = (int)ceil(x_new);
-					lower = (int)floor(x_new);
-					if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+				if(quad == 1){
+					slope = calculate_slope(player->x, player->y, x, y);
+					for(int y1 = 0; y1 < player->y - y; y1++){
+						x_pred = y1 * slope;
+						double x_new = player->x - x_pred;
+						int y_new = player->y - y1;
+						upper = (int)ceil(x_new);
+						lower = (int)floor(x_new);
+						if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
 
-						if(upper == lower){
-							if(!grid_isRoomSpot(Grid, upper, y_new)){
-								visibility = false;
-								break;
+							if(upper == lower){
+								if(!grid_isRoomSpot(Grid, upper, y_new)){
+									visibility = false;
+									break;
+								}
+							}else{
+								if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+									visibility = false;
+									break;
+								}
 							}
-						}else{
-							if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
-								visibility = false;
-								break;
+						}
+					}
+					slope = 1/slope;
+					for(int x1 = 0; x1 < player->x - x; x1++){
+						y_pred = x1 * slope;
+						int x_new = player->x - x1;
+						double y_new = player->y - y_pred;
+						upper = (int)ceil(y_new);
+						lower = (int)floor(y_new);
+						if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+							if(upper == lower){
+								if(!grid_isRoomSpot(Grid, x_new, upper)){
+									visibility = false;
+									break;
+								}
+							}else{
+								if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+									visibility = false;
+									break;
+								}
+							}
+						}
+					}
+				}else{
+					slope = calculate_slope(player->x, player->y, x, y);
+					for(int y1 = 0; y1 < y - player->y; y1++){
+						x_pred = y1 * slope;
+						double x_new = player->x + x_pred;
+						int y_new = player->y + y1;
+						upper = (int)ceil(x_new);
+						lower = (int)floor(x_new);
+						if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+
+							if(upper == lower){
+								if(!grid_isRoomSpot(Grid, upper, y_new)){
+									visibility = false;
+									break;
+								}
+							}else{
+								if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+									visibility = false;
+									break;
+								}
+							}
+						}
+					}
+					slope = 1/slope;
+					for(int x1 = 0; x1 < player->x - x; x1++){
+						y_pred = x1 * slope;
+						int x_new = player->x - x1;
+						double y_new = player->y - y_pred;
+						upper = (int)ceil(y_new);
+						lower = (int)floor(y_new);
+						if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+							if(upper == lower){
+								if(!grid_isRoomSpot(Grid, x_new, upper)){
+									visibility = false;
+									break;
+								}
+							}else{
+								if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+									visibility = false;
+									break;
+								}
 							}
 						}
 					}
 				}
-				slope = 1/slope;
-				for(int x1 = 0; x1 < player->x - x; x1++){
-					y_pred = x1 * slope;
-					int x_new = player->x - x1;
-					double y_new = player->y - y_pred;
-					upper = (int)ceil(y_new);
-					lower = (int)floor(y_new);
-					if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
-						if(upper == lower){
-							if(!grid_isRoomSpot(Grid, x_new, upper)){
-								visibility = false;
-								break;
-							}
-						}else{
-							if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
-								visibility = false;
-								break;
-							}
-						}
-					}
-				}
+				
 			}
 			if(quad == 3 || quad == 4){
 				
@@ -554,7 +631,7 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 			}
 			if(visibility){
 					player_grid[y][x] = master_grid[y][x];
-          if(grid_isGold(Grid, x, y)){
+          			if(grid_isGold(Grid, x, y)){
 						player_grid[y][x] = '*';
 					}
 				}
@@ -563,10 +640,257 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 
 }
 
+bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
+	char **master_grid = Grid->g;
+    char **player_grid = player->grid->g;
+    double slope;
+    double x_pred, y_pred;
+    int upper, lower;
+	int x = player2->x;
+	int y = player2->y;
+	if(player->y == y){
+		int x1 = player->x;
+		while(!grid_isWall(Grid, x1, player->y)){
+			if(grid_isPlayer(Grid, x1, player->y)){
+				return true;
+			}
+			x1 += 1;
+		}
+		x1 = player->x;
+		while(!grid_isWall(Grid, x1, player->y)){
+			if(grid_isPlayer(Grid, x1, player->y)){
+				return true;
+			}
+			x1 -= 1;
+		}
+		if(player->x == x){
+			int y1 = player->y;
+			while(!grid_isWall(Grid, player->x, y1)){
+				if(grid_isPlayer(Grid, player->x, y1)){
+					return true;
+				}
+				y1 += 1;
+			}
+			y1 = player->y;
+			while(!grid_isWall(Grid, player->x, y1)){
+					if(grid_isPlayer(Grid, player->x, y1)){
+					return true;
+				}
+				y1 -= 1;
+			}
+		}
+	}
+	if(player->x == x){
+		int y1 = player->y;
+		while(!grid_isWall(Grid, player->x, y1)){
+			if(grid_isPlayer(Grid, player->x, y1)){
+				return true;
+			}
+			y1 += 1;
+		}
+		y1 = player->y;
+		while(!grid_isWall(Grid, player->x, y1)){
+				if(grid_isPlayer(Grid, player->x, y1)){
+				return true;
+			}
+			y1 -= 1;
+		}
+		if(player->y == y){
+			int x1 = player->x;
+			while(!grid_isWall(Grid, x1, player->y)){
+				if(grid_isPlayer(Grid, x1, player->y)){
+					return true;
+				}
+				x1 += 1;
+			}
+			x1 = player->x;
+			while(!grid_isWall(Grid, x1, player->y)){
+				if(grid_isPlayer(Grid, x1, player->y)){
+					return true;
+				}
+				x1 -= 1;
+			}
+		}
+	}
+
+	int quad = quadrant(x, y, player->x, player->y);
+	if(quad == 1 || quad == 2){
+		if(quad == 1){
+			slope = calculate_slope(player->x, player->y, x, y);
+			for(int y1 = 0; y1 < player->y - y; y1++){
+				x_pred = y1 * slope;
+				double x_new = player->x - x_pred;
+				int y_new = player->y - y1;
+				upper = (int)ceil(x_new);
+				lower = (int)floor(x_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, upper, y_new)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+							return false;
+						}
+					}
+				}
+			}
+			slope = 1/slope;
+			for(int x1 = 0; x1 < player->x - x; x1++){
+				y_pred = x1 * slope;
+				int x_new = player->x - x1;
+				double y_new = player->y - y_pred;
+				upper = (int)ceil(y_new);
+				lower = (int)floor(y_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, x_new, upper)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+							return false;
+						}
+					}
+				}
+			}
+		}else{
+			slope = calculate_slope(player->x, player->y, x, y);
+			for(int y1 = 0; y1 < y - player->y; y1++){
+				x_pred = y1 * slope;
+				double x_new = player->x + x_pred;
+				int y_new = player->y + y1;
+				upper = (int)ceil(x_new);
+				lower = (int)floor(x_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, upper, y_new)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+							return false;
+						}
+					}
+				}
+			}
+			slope = 1/slope;
+			for(int x1 = 0; x1 < player->x - x; x1++){
+				y_pred = x1 * slope;
+				int x_new = player->x - x1;
+				double y_new = player->y - y_pred;
+				upper = (int)ceil(y_new);
+				lower = (int)floor(y_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, x_new, upper)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+							return false;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	if(quad == 3 || quad == 4){
+		
+		if(quad == 3){
+			slope = calculate_slope(player->x, player->y, x, y);
+			for(int y1 = 0; y1 < player->y - y; y1++){
+				x_pred = y1 * slope;
+				double x_new = player->x - x_pred;
+				int y_new = player->y - y1;
+				upper = (int)ceil(x_new);
+				lower = (int)floor(x_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, upper, y_new)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+							return false;
+						}
+					}
+				}
+			}
+			slope = 1/slope;
+			for(int x1 = 0; x1 < x - player->x; x1++){
+				y_pred = x1 * slope;
+				int x_new = player->x + x1;
+				double y_new = player->y + y_pred;
+				upper = (int)ceil(y_new);
+				lower = (int)floor(y_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, x_new, upper)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+							return false;
+						}
+					}
+				}
+			}
+		}else{
+			slope = calculate_slope(player->x, player->y, x, y);
+			for(int y1 = 0; y1 < y - player->y; y1++){
+				x_pred = y1 * slope;
+				double x_new = player->x + x_pred;
+				int y_new = player->y + y1;
+				upper = (int)ceil(x_new);
+				lower = (int)floor(x_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->cols && lower < Grid->cols){
+
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, upper, y_new)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, upper, y_new) && !grid_isRoomSpot(Grid, lower, y_new)){
+							return false;
+						}
+					}
+				}
+			}
+			slope = 1/slope;
+			for(int x1 = 0; x1 < x - player->x; x1++){
+				y_pred = x1 * slope;
+				int x_new = player->x + x1;
+				double y_new = player->y + y_pred;
+				upper = (int)ceil(y_new);
+				lower = (int)floor(y_new);
+				if(upper >= 0 && lower >= 0 && upper < Grid->rows && lower < Grid->rows){
+					if(upper == lower){
+						if(!grid_isRoomSpot(Grid, x_new, upper)){
+							return false;
+						}
+					}else{
+						if(!grid_isRoomSpot(Grid, x_new, upper) && !grid_isRoomSpot(Grid, x_new, lower)){
+							return false;
+						}
+					}
+				}
+			}
+		}
+	}
+	return true;
+}
+
+
 void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
-    grid_t* master = gameState->masterGrid;
-    gold_t* gameGold = gameState->gameGold;
-	char** player_grid = player->grid->g;
+  grid_t* master = gameState->masterGrid;
+  gold_t* gameGold = gameState->gameGold;
+	
+  char** player_grid = player->grid->g;
 	char** master_grid = master->g;
 	int* gold_array = gameGold->goldCounter;
 
@@ -574,12 +898,12 @@ void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 		player_grid[player->y][player->x] = '.';
 		master_grid[player->y][player->x] = '.';
 
-        player->x = x;
+    player->x = x;
 		player->y = y;
         
-        player->gold = gold_array[gameGold->index];
-        // gameGold->goldremaining -= gold_array[gameGold->index];
-        gameGold->index += 1;
+    player->gold = gold_array[gameGold->index];
+    // gameGold->goldremaining -= gold_array[gameGold->index];
+    gameGold->index += 1;
         
         master_grid[y][x] = player->letter;
 		player_grid[y][x] = player->letter;
@@ -591,25 +915,28 @@ void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
         for(int i = 0; i < 26;i++){
 			player_t* otherPlayer = players[i];
 			if (otherPlayer->x == x && otherPlayer->y == y){
-                otherPlayer->x = player->x;
-                otherPlayer->y = player->y;
-                char** other_grid = otherPlayer->grid->g;
-				other_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
+        otherPlayer->x = player->x;
+        otherPlayer->y = player->y;
+        
+        char** other_grid = otherPlayer->grid->g;
+				
+        other_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
 				master_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
 				break;
 			}
 		}
         
-        player->x = x;
+    player->x = x;
 		player->y = y;
-        master_grid[y][x] = player->letter;
+    
+    master_grid[y][x] = player->letter;
 		player_grid[y][x] = player->letter;
 
 	}else{
-        player_grid[player->y][player->x] = '.';
+    player_grid[player->y][player->x] = '.';
 		master_grid[player->y][player->x] = '.';
 
-        player->x = x;
+    player->x = x;
 		player->y = y;
 
 		master_grid[y][x] = player->letter;

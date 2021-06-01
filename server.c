@@ -56,6 +56,7 @@ static int getRemainingGold(gamestate_t* state);
 static void sendGoldToPlayers(gamestate_t* state);
 static void sendPlayerOK(player_t* player);
 static void sendGoldToSpectator(gamestate_t* state);
+static void handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -195,7 +196,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   /* convert arg back to gamestate */
   gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
-  char* message_copy = malloc(strlen(message));
+  char* message_copy = calloc(1, strlen(message));
   strcpy(message_copy, message);
   char** tokens;
   if ( (tokens = tokenize(message_copy)) != NULL) {
@@ -223,9 +224,8 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 
         /* handle gameplay keys */
         if (numTokens == 2 && (strcmp(tokens[0], "KEY") == 0) ) {
-
           /* call function to handle key here */
-          //handleKey(state, fromAddress, tokens[1]); TODO: Write this fuction
+          handleKey(state, fromAddress, tokens[1][0]);
         }
         else {
           reportMalformedMessage(fromAddress, message_copy, "is not a valid gameplay message.");
@@ -426,6 +426,21 @@ handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
 }
 
 static void
+handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
+  // Get player object from address
+  player_t* playerThatPressedKey = gamestate_findPlayerByAddress(state, fromAddress);
+
+  // If cant find player
+  if (playerThatPressedKey == NULL){
+    fprintf(stderr, "Couldn't find a matching player for key press");
+    return;
+  }
+
+  // Otherwise, do a switch case with the options for moving the player
+  playerThatPressedKey->x = playerThatPressedKey->x+1 ;
+}
+
+static void
 handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   /* We don't actually delete the player from the game 
     because we need to keep their information
@@ -475,7 +490,7 @@ displayForPlayer(gamestate_t* state, player_t* player){
 
   // Covert visible grid to string
   grid_t* playerGrid = player->grid;
-  char* playerGridAsString = grid_toString(state, playerGrid);
+  char* playerGridAsString = grid_toStringForPlayer(state, player);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );

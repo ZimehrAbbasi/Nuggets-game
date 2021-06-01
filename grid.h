@@ -66,6 +66,12 @@ grid_t* grid_init(FILE* mapfile);
 grid_t* grid_initForPlayer(grid_t* masterGrid);
 
 
+bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2);
+
+char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player);
+
+void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y);
+
 /**
  * @brief: function to delete a grid instance 
  * and free all allocated memory.
