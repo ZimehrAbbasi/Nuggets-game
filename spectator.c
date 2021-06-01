@@ -1,7 +1,7 @@
 /**
  * @file player.c
  * @author TEAM PINE
- * @brief: functionality for the spectator module
+ * @brief: defines functionality for the spectator module
  * @version 0.1
  * @date 2021-05-25
  * 

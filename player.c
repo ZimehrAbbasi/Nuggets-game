@@ -42,8 +42,10 @@
 player_t* 
 player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid) 
 {
+  /* allocate memory for struct */
   player_t* player = malloc(sizeof(player_t));
 
+  /* save data in struct */
   player->letter = letter;
   player->name = malloc(sizeof(name));
   strcpy(player->name, name);
@@ -54,6 +56,7 @@ player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid)
   player->y = y;
   player->grid = grid;
 
+  /* return pointer to player struct */
   return player;
 }
 

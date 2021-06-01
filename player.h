@@ -1,7 +1,9 @@
 /**
  * @file player.h
- * @author your name (you@domain.com)
- * @brief 
+ * @author TEAM PINE
+ * @brief: exports functionality for the player module.
+ * The player module offers abstractiona and interface
+ * for the players in the game.
  * @version 0.1
  * @date 2021-05-25
  * 
