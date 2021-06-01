@@ -11,6 +11,7 @@ L = support
 ########### compiler flags ############
 CFLAGS= -Wall -pedantic -std=c11 -ggdb -I$(L)
 CC=gcc
+VALGRIND= valgrind --leak-check=full --show-leak-kinds=all
 
 ######### local dependencies ##########
 LIB = locallib.a
@@ -23,8 +24,9 @@ LIBS =  $(L)/support.a -lm
 ######### default rule #######
 all: $(LIBS) $(PROG)
 
-$(PROG): $(OBJS)
+$(PROG): $(OBJS) $(LIBS)
 	$(CC) $(CFLAGS) $^ $(LIB) $(LIBS) -o $@
+	rm -rf $(OBJS) $(LIB)
 
 ###### dependency library #####
 $(LIB): gamestate.o player.o grid.o gold.o spectator.o
@@ -50,9 +52,12 @@ $(L)/support.a:
 
 
 
-########### test #############
+########### tests #############
+quicktest: $(PROG)
+	$(VALGRIND)	./server ./maps/main.txt 257573
+
 test: 
-	echo "testing scripts go here"
+	printf "More tests to come\n"
 
 ######## phony target ########
 .PHONY: all test clean
