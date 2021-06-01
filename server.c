@@ -427,108 +427,330 @@ handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
 
 static void
 handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
-  // Get player object from address
-  player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
-  grid_t* Grid = state->masterGrid;
-  // If cant find player
-  if (player == NULL){
-    fprintf(stderr, "Couldn't find a matching player for key press");
-    return;
-  }
+	// Get player object from address
+	player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
+	grid_t* Grid = state->masterGrid;
+	gold_t* gameGold = state->gameGold;
+		
+  	char** player_grid = player->grid->g;
+	char** master_grid = Grid->g;
+	int* gold_array = gameGold->goldCounter;
+	// If cant find player
+	if (player == NULL){
+		fprintf(stderr, "Couldn't find a matching player for key press");
+		return;
+	}
 
     switch (pressedKey) {
     case 'l': 
         if(!grid_isWall(Grid, player->x+1, player->y)){
-            player->x += 1;
+            if (grid_isGold(Grid, player->x+1, player->y)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->x += 1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x += 1;
+			}
         }
         break;
     case 'h': 
         if(!grid_isWall(Grid, player->x-1, player->y)){
-            player->x-=1;
+			if (grid_isGold(Grid, player->x-1, player->y)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->x-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1;
+			}
         }
         break;
     case 'k': 
         if(!grid_isWall(Grid, player->x, player->y-1)){
-            player->y-=1;
+            if (grid_isGold(Grid, player->x, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->y-=1;
+			}
         }
         break;
     case 'j': 
         if(!grid_isWall(Grid, player->x, player->y+1)){
-            player->y+=1;
+            if (grid_isGold(Grid, player->x, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->y+=1;
+			}
         }
         break;
     case 'u': 
         if(!grid_isWall(Grid, player->x+1, player->y-1)){
-            player->x+=1; 
-            player->y-=1;
+			if (grid_isGold(Grid, player->x+1, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+            	player->x+=1; 
+            	player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x+=1; 
+				player->y-=1;
+			}
         }
         break;
     case 'y': 
         if(!grid_isWall(Grid, player->x-1, player->y-1)){
-            player->x-=1; 
-            player->y-=1;
+			if (grid_isGold(Grid, player->x-1, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x-=1; 
+				player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1; 
+				player->y-=1;
+			}
         }
         break;
     case 'b': 
         if(!grid_isWall(Grid, player->x-1, player->y+1)){
-            player->x-=1; 
-            player->y+=1;
+			if (grid_isGold(Grid, player->x-1, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x-=1; 
+            	player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1; 
+            	player->y+=1;
+			}
         }
         break;
     case 'n': 
         if(!grid_isWall(Grid, player->x+1, player->y+1)){
-            player->x+=1; 
-            player->y+=1;
+			if (grid_isGold(Grid, player->x+1, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x+=1; 
+            	player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x+=1; 
+            	player->y+=1;
+			}
         }
         break;
     case 'L': 
         while(!grid_isWall(Grid, player->x+1, player->y)){
-            player->x += 1;
+            if (grid_isGold(Grid, player->x+1, player->y)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->x += 1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x += 1;
+			}
         }
         break;
     case 'H': 
         while(!grid_isWall(Grid, player->x-1, player->y)){
-            player->x-=1;
+            if (grid_isGold(Grid, player->x-1, player->y)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->x-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1;
+			}
         }
         break;
     case 'K': 
         while(!grid_isWall(Grid, player->x, player->y-1)){
-            player->y-=1;
+            if (grid_isGold(Grid, player->x, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->y-=1;
+			}
         }
         break;
     case 'J': 
         while(!grid_isWall(Grid, player->x, player->y+1)){
-            player->y+=1;
-        }
+            if (grid_isGold(Grid, player->x, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+                player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->y+=1;
+        	}
+		}
         break;
     case 'U': 
         while(!grid_isWall(Grid, player->x+1, player->y-1)){
-            player->x+=1; 
-            player->y-=1;
+            if (grid_isGold(Grid, player->x+1, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+            	player->x+=1; 
+            	player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x+=1; 
+				player->y-=1;
+			}
         }
         break;
     case 'Y': 
         while(!grid_isWall(Grid, player->x-1, player->y-1)){
-            player->x-=1; 
-            player->y-=1;
+            if (grid_isGold(Grid, player->x-1, player->y-1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x-=1; 
+				player->y-=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1; 
+				player->y-=1;
+			}
         }
         break;
     case 'B': 
         while(!grid_isWall(Grid, player->x-1, player->y+1)){
-            player->x-=1; 
-            player->y+=1;
+            if (grid_isGold(Grid, player->x-1, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x-=1; 
+            	player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x-=1; 
+            	player->y+=1;
+			}
         }
         break;
     case 'N': 
         while(!grid_isWall(Grid, player->x+1, player->y+1)){
-            player->x+=1; 
-            player->y+=1;
+            if (grid_isGold(Grid, player->x+1, player->y+1)){
+                player_grid[player->y][player->x] = '.';
+                master_grid[player->y][player->x] = '.';
+
+				player->x+=1; 
+            	player->y+=1;
+                  
+                player->gold = gold_array[gameGold->index];
+                // gameGold->goldremaining -= gold_array[gameGold->index];
+                gameGold->index += 1;
+                    
+            	master_grid[player->y][player->x] = '.';
+            }else{
+				player->x+=1; 
+            	player->y+=1;
+			}
         }
         break;
     default:
         break;
     }
 }
+
 
 static void
 handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
