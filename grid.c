@@ -55,6 +55,7 @@ grid_t* grid_init(FILE* mapfile) {
     char* line;
     while( (line = file_readLine(mapfile)) != NULL){
       strcpy(temp[j++], line);
+      free(line);
     }
     /* return grid */
     return grid;

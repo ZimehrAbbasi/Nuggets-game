@@ -477,6 +477,7 @@ displayForSpectator(gamestate_t* state, spectator_t* spectator){
   spectator_send(spectator, messageHeader);
 
   // Free created memory
+  free(messageHeader);
   free(masterGridAsString);
 }
 
@@ -503,6 +504,7 @@ displayForPlayer(gamestate_t* state, player_t* player){
   player_send(player, messageHeader);
 
   // Free created memory
+  free(messageHeader);
   free(playerGridAsString);
 }
 
@@ -601,9 +603,9 @@ main(const int argc, const char* argv[])
 
 
     // Parse arguments  and use seed value
-    int* seed = malloc(sizeof(int));
-    parseArgs(argc, argv, seed);
-    srand(*seed);
+    int seed = 0;
+    parseArgs(argc, argv, &seed);
+    srand(seed);
 
     // Open and close map file and init gamestate object
     FILE* fp  = fopen(argv[1], "r");
@@ -635,5 +637,5 @@ main(const int argc, const char* argv[])
     game_close(gs);
 
     // Free seed value
-    free(seed);
+    // free(seed);
 }
