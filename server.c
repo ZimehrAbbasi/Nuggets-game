@@ -57,6 +57,7 @@ static void sendGoldToPlayers(gamestate_t* state);
 static void sendPlayerOK(player_t* player);
 static void sendGoldToSpectator(gamestate_t* state);
 static void handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey);
+static void playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -450,7 +451,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->x += 1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -468,7 +471,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->x-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -486,7 +491,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -504,7 +511,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -523,7 +532,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
             	player->x+=1; 
             	player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -543,7 +554,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x-=1; 
 				player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -563,7 +576,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x-=1; 
             	player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -583,7 +598,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x+=1; 
             	player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -602,7 +619,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->x += 1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -620,7 +639,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->x-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -638,7 +659,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -656,7 +679,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
                 player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -675,7 +700,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
             	player->x+=1; 
             	player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -695,7 +722,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x-=1; 
 				player->y-=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -715,7 +744,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x-=1; 
             	player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -735,7 +766,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 				player->x+=1; 
             	player->y+=1;
                   
-                player->gold = gold_array[gameGold->index];
+                player->gold += gold_array[gameGold->index];
+                int goldJustCollected = gold_array[gameGold->index];
+                playerPickedUpGold(state, player, goldJustCollected);
                 // gameGold->goldremaining -= gold_array[gameGold->index];
                 gameGold->index += 1;
                     
@@ -881,6 +914,21 @@ sendGoldToSpectator(gamestate_t* state){
 
   //Free created memory
   free(goldMessage);
+}
+
+static void
+playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold){
+  int currentPlayerGold = player->gold;
+  int goldLeftInGame = getRemainingGold(state);
+
+  // Format individual GOLD message and send to player
+  char goldCollectedMessage[50];
+  sprintf(goldCollectedMessage, "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
+  player_send(player, goldCollectedMessage);
+
+  // Send GOLD messages to all players and spectators
+  sendGoldToPlayers(state);
+  sendGoldToSpectator(state);
 }
 
 static int
