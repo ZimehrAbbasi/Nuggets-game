@@ -284,33 +284,59 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 	
 	for(int y = 0; y < Grid->rows; y++){
     	for(int x = 0; x < Grid->cols; x++){
+			x = 10;
+			y = 1;
             if(master_grid[y][x] == ' '){
               continue;
             }
             slope = calculate_slope(x, y, player->x, player->y);
+
+			if(player->x == x){
+				int x1 = player->x;
+				while(!grid_isWall()){
+					
+				}
+			}
+
+			printf("%f\n", slope);
             visibility = true;
             if(abs(player->y - y) > abs(player->x - x)){
-                for(int y1 = min(y, player->y)+1; y1 < max(y, player->y); y1++){
-                    x_pred = func(y1, min(x, player->x), 1/slope);
-                    if(x_pred < 0 || x_pred > Grid->cols){
+				int start = min(y, player->y);
+                for(int y1 = 0; y1 < max(y, player->y)-start; y1++){
+
+					if(x < player->x){
+						x_pred = 1/slope * y1 + x;
+					}else{
+						x_pred = -1/slope * y1 + player->x;;
+					}
+					int pred_y = start - y1;
+                    if(x_pred < 0 || x_pred > Grid->cols || pred_y < 0 || pred_y > Grid->rows){
                       continue;
                     }
                     upper = (int)ceil(x_pred);
                     lower = (int)floor(x_pred);
-                    if(!grid_isSpace(Grid, upper, y1) || !grid_isSpace(Grid, lower, y1) || !grid_isPlayer(Grid, upper, y1) || !grid_isPlayer(Grid, lower, y1)){
+                    if(grid_isWall(Grid, upper, pred_y) || grid_isWall(Grid, lower, pred_y)){
                       	visibility = false;
                       	break; 
                     }
                 }
             }else{
-                for(int x1 = min(x, player->x); x1 < max(x, player->x); x1++){
-                    y_pred = func(x1, min(y, player->y), -slope);
-                    if(y_pred < 0 || y_pred > Grid->rows){
-                      continue;
+				int start = min(x, player->x);
+                for(int x1 = 0; x1 < max(x, player->x)-start; x1++){
+					
+					if(y < player->y){
+						y_pred = -slope * x1 + y;
+					}else{
+						y_pred = slope * x1 + player->y;
+					}
+                    int pred_x = start - x1;
+                    if(y_pred < 0 || y_pred > Grid->rows || pred_x < 0 || pred_x > Grid->cols){
+                      	continue;
                     }
                     upper = (int)ceil(y_pred);
                     lower = (int)floor(y_pred);
-                    if(!grid_isSpace(Grid, upper, x1) || !grid_isSpace(Grid, lower, x1) || !grid_isPlayer(Grid, upper, x1) || !grid_isPlayer(Grid, lower, x1)){
+					
+                    if(grid_isWall(Grid, pred_x, upper) || grid_isWall(Grid, pred_x, lower)){
                       	visibility = false;
                       	break; 
                     }
@@ -324,6 +350,8 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
                     player_grid[y][x] = '.';
                 }
             }
+
+			exit(1);
         }
     }
 
