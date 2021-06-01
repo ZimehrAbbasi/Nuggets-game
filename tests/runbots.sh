@@ -10,7 +10,7 @@
 
 
 # add a spectator
-echo "Adding spectator..."
+echo "Adding spectator... to port $@"
 prof/player localhost $@ 2> /dev/null &
 
 # add 25 background bots
