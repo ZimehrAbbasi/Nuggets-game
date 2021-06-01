@@ -45,6 +45,9 @@ grid.o: grid.h $(L)/file.h player.h gamestate.h $(L)/message.h
 
 gold.o: gold.h grid.h -lm player.h
 
+$(L)/support.a:
+	make -C $(L)
+
 
 
 ########### test #############
