@@ -44,6 +44,7 @@ void handleInput(void* arg);
 char** tokenize(char* message);
 void deleteTokens(char** parsedMessage);
 bool handleMessage(void* arg, const addr_t fromAddress, const char* message);
+void movePlayer(gamestate_t* gameState, player_t* player, int x, int y);
 static void handlePlayerQuit(gamestate_t* state, addr_t fromAddress);
 static void addSpectatorToGame(gamestate_t* state, addr_t fromAddress);
 static void reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message);
@@ -142,36 +143,6 @@ game_close(gamestate_t* gameState)
   }
 }
 
-static void endGame(gamestate_t* state){
-  // Get array of players and length of players array
-  player_t** allPlayers = state->players;
-  int numPlayers = state->players_seen;
-
-  // Allocate space for message to players
-  char* endMessage = calloc(1+numPlayers, (MaxNameLength*sizeof(char)) + 20);
-
-  // Loop over every player and add info to leaderboard
-  strcpy(endMessage, "QUIT GAME OVER:\n");
-  for(int i = 0; i < numPlayers; i++){
-    char* tempBuffer = calloc(1, (MaxNameLength*sizeof(char)) + 20);
-
-    // Concatenate new player info onto leaderboard
-    sprintf(tempBuffer, "%c    %d  %s\n", allPlayers[i]->letter, allPlayers[i]->gold, allPlayers[i]->name);
-    strcat(endMessage, tempBuffer);
-    
-    // Free associated memory
-    free(tempBuffer);
-  }
-
-  // Send message to all players and the specatator
-  for(int i = 0; i < numPlayers; i++){
-    player_send(allPlayers[i], endMessage);
-  }
-  spectator_send(state->spectator, endMessage);
-
-  // Free ending message
-  free(endMessage);
-}
 
 char**
 tokenize(char* message)
@@ -387,12 +358,27 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     return false;
   }else{
     // Do things for when game is over
-    endGame(state);
+	endGame(state);
     return true;
   }
 }
 
 /**************** Static Functions ******************/
+
+static void
+playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold){
+  int currentPlayerGold = player->gold;
+  int goldLeftInGame = getRemainingGold(state);
+
+  // Format individual GOLD message and send to player
+  char goldCollectedMessage[50];
+  sprintf(goldCollectedMessage, "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
+  player_send(player, goldCollectedMessage);
+
+  // Send GOLD messages to all players and spectators
+  sendGoldToPlayers(state);
+  sendGoldToSpectator(state);
+}
 
 /**
  * @brief: Function to generate a number within a range.
@@ -463,11 +449,7 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 	// Get player object from address
 	player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
 	grid_t* Grid = state->masterGrid;
-	gold_t* gameGold = state->gameGold;
-		
-  	char** player_grid = player->grid->g;
-	char** master_grid = Grid->g;
-	int* gold_array = gameGold->goldCounter;
+
 	// If cant find player
 	if (player == NULL){
 		fprintf(stderr, "Couldn't find a matching player for key press");
@@ -476,339 +458,67 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
     switch (pressedKey) {
     case 'l': 
-        if(!grid_isWall(Grid, player->x+1, player->y)){
-            if (grid_isGold(Grid, player->x+1, player->y)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->x += 1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x += 1;
-			}
-        }
+        movePlayer(state, player, player->x+1, player->y);
         break;
     case 'h': 
-        if(!grid_isWall(Grid, player->x-1, player->y)){
-			if (grid_isGold(Grid, player->x-1, player->y)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->x-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1;
-			}
-        }
+        movePlayer(state, player, player->x-1, player->y);
         break;
     case 'k': 
-        if(!grid_isWall(Grid, player->x, player->y-1)){
-            if (grid_isGold(Grid, player->x, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->y-=1;
-			}
-        }
+        movePlayer(state, player, player->x, player->y-1);
         break;
     case 'j': 
-        if(!grid_isWall(Grid, player->x, player->y+1)){
-            if (grid_isGold(Grid, player->x, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->y+=1;
-			}
-        }
+        movePlayer(state, player, player->x, player->y+1);
         break;
     case 'u': 
-        if(!grid_isWall(Grid, player->x+1, player->y-1)){
-			if (grid_isGold(Grid, player->x+1, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-            	player->x+=1; 
-            	player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x+=1; 
-				player->y-=1;
-			}
-        }
+        movePlayer(state, player, player->x+1, player->y-1);
         break;
     case 'y': 
-        if(!grid_isWall(Grid, player->x-1, player->y-1)){
-			if (grid_isGold(Grid, player->x-1, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x-=1; 
-				player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1; 
-				player->y-=1;
-			}
-        }
+        movePlayer(state, player, player->x-1, player->y-1);
         break;
     case 'b': 
-        if(!grid_isWall(Grid, player->x-1, player->y+1)){
-			if (grid_isGold(Grid, player->x-1, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x-=1; 
-            	player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1; 
-            	player->y+=1;
-			}
-        }
+        movePlayer(state, player, player->x-1, player->y+1);
         break;
     case 'n': 
-        if(!grid_isWall(Grid, player->x+1, player->y+1)){
-			if (grid_isGold(Grid, player->x+1, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x+=1; 
-            	player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x+=1; 
-            	player->y+=1;
-			}
-        }
+        movePlayer(state, player, player->x+1, player->y+1);
         break;
     case 'L': 
         while(!grid_isWall(Grid, player->x+1, player->y)){
-            if (grid_isGold(Grid, player->x+1, player->y)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->x += 1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x += 1;
-			}
+            movePlayer(state, player, player->x+1, player->y);
         }
         break;
     case 'H': 
         while(!grid_isWall(Grid, player->x-1, player->y)){
-            if (grid_isGold(Grid, player->x-1, player->y)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->x-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1;
-			}
+            movePlayer(state, player, player->x-1, player->y);
         }
         break;
     case 'K': 
         while(!grid_isWall(Grid, player->x, player->y-1)){
-            if (grid_isGold(Grid, player->x, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->y-=1;
-			}
+            movePlayer(state, player, player->x, player->y-1);
         }
         break;
     case 'J': 
         while(!grid_isWall(Grid, player->x, player->y+1)){
-            if (grid_isGold(Grid, player->x, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-                player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->y+=1;
-        	}
+            movePlayer(state, player, player->x, player->y+1);
 		}
         break;
     case 'U': 
         while(!grid_isWall(Grid, player->x+1, player->y-1)){
-            if (grid_isGold(Grid, player->x+1, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-            	player->x+=1; 
-            	player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x+=1; 
-				player->y-=1;
-			}
+            movePlayer(state, player, player->x+1, player->y-1);
         }
         break;
     case 'Y': 
         while(!grid_isWall(Grid, player->x-1, player->y-1)){
-            if (grid_isGold(Grid, player->x-1, player->y-1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x-=1; 
-				player->y-=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1; 
-				player->y-=1;
-			}
+            movePlayer(state, player, player->x-1, player->y-1);
         }
         break;
     case 'B': 
         while(!grid_isWall(Grid, player->x-1, player->y+1)){
-            if (grid_isGold(Grid, player->x-1, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x-=1; 
-            	player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x-=1; 
-            	player->y+=1;
-			}
+            movePlayer(state, player, player->x-1, player->y+1);
         }
         break;
     case 'N': 
         while(!grid_isWall(Grid, player->x+1, player->y+1)){
-            if (grid_isGold(Grid, player->x+1, player->y+1)){
-                player_grid[player->y][player->x] = '.';
-                master_grid[player->y][player->x] = '.';
-
-				player->x+=1; 
-            	player->y+=1;
-                  
-                player->gold += gold_array[gameGold->index];
-                int goldJustCollected = gold_array[gameGold->index];
-                playerPickedUpGold(state, player, goldJustCollected);
-                // gameGold->goldremaining -= gold_array[gameGold->index];
-                gameGold->index += 1;
-                    
-            	master_grid[player->y][player->x] = '.';
-            }else{
-				player->x+=1; 
-            	player->y+=1;
-			}
+            movePlayer(state, player, player->x+1, player->y+1);
         }
         break;
     default:
@@ -903,6 +613,103 @@ isGameEnded(gamestate_t* state){
   }
 }
 
+void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
+
+	if(gameState == NULL){
+		return NULL;
+	}
+	grid_t* Grid = gameState->masterGrid;
+ 	gold_t* gameGold = gameState->gameGold;
+	
+  	char** player_grid = player->grid->g;
+	char** master_grid = Grid->g;
+	int* gold_array = gameGold->goldCounter;
+
+	player_t **players = gameState->players;
+	player_t* otherPlayer = NULL;
+	for(int i = 0; i < gameState->players_seen;i++){
+		otherPlayer = players[i];
+		if (otherPlayer->x == x && otherPlayer->y == y && otherPlayer->letter != player->letter){
+			break;
+		} else{
+			otherPlayer = NULL;
+		}
+	}
+
+
+	if(!grid_isWall(Grid, x, y)){
+		if (grid_isGold(Grid, x, y)){
+			player_grid[player->y][player->x] = '.';
+			master_grid[player->y][player->x] = '.';
+
+			player->x = x;
+			player->y = y;
+			
+			player->gold += gold_array[gameGold->index];
+			int goldJustCollected = gold_array[gameGold->index];
+			playerPickedUpGold(gameState, player, goldJustCollected);
+
+			gameGold->index += 1;
+				
+			master_grid[player->y][player->x] = '.';
+
+		}else if(otherPlayer != NULL){
+
+			char** otherPlayer_grid = otherPlayer->grid->g;
+
+			int tempx = player->x;
+			int tempy = player->y;
+
+			player_grid[player->y][player->x] = '.';
+			master_grid[player->y][player->x] = '.';
+
+			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
+			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
+
+			player->y = otherPlayer->y;
+			player->x = otherPlayer->x;
+
+			otherPlayer->y = tempy;
+			otherPlayer->x = tempx;
+			
+		}else{
+			player->x = x;
+			player->y = y;
+		}
+	}
+}
+
+static void endGame(gamestate_t* state){
+  // Get array of players and length of players array
+  player_t** allPlayers = state->players;
+  int numPlayers = state->players_seen;
+
+  // Allocate space for message to players
+  char* endMessage = calloc(1+numPlayers, (MaxNameLength*sizeof(char)) + 20);
+
+  // Loop over every player and add info to leaderboard
+  strcpy(endMessage, "QUIT GAME OVER:\n");
+  for(int i = 0; i < numPlayers; i++){
+    char* tempBuffer = calloc(1, (MaxNameLength*sizeof(char)) + 20);
+
+    // Concatenate new player info onto leaderboard
+    sprintf(tempBuffer, "%c   %d    %s\n", allPlayers[i]->letter, allPlayers[i]->gold, allPlayers[i]->name);
+    strcat(endMessage, tempBuffer);
+    
+    // Free associated memory
+    free(tempBuffer);
+  }
+
+  // Send message to all players and the specatator
+  for(int i = 0; i < numPlayers; i++){
+    player_send(allPlayers[i], endMessage);
+  }
+  spectator_send(state->spectator, endMessage);
+
+  // Free ending message
+  free(endMessage);
+}
+
 static void
 sendGoldToPlayers(gamestate_t* state){
   // Loop over every player
@@ -946,21 +753,6 @@ sendGoldToSpectator(gamestate_t* state){
 
   //Free created memory
   free(goldMessage);
-}
-
-static void
-playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold){
-  int currentPlayerGold = player->gold;
-  int goldLeftInGame = getRemainingGold(state);
-
-  // Format individual GOLD message and send to player
-  char goldCollectedMessage[50];
-  sprintf(goldCollectedMessage, "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
-  player_send(player, goldCollectedMessage);
-
-  // Send GOLD messages to all players and spectators
-  sendGoldToPlayers(state);
-  sendGoldToSpectator(state);
 }
 
 static int

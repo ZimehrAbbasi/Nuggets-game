@@ -57,7 +57,7 @@ gold_init(int numPiles)
 
     int remainder = TOTALGOLD;                          /* track remaining gold */ 
     for (int i = 0; i < numPiles - 1; i++) {            /* allocate random counts for numPiles-1 piles */
-      int upperBound = remainder - (numPiles - i - 1);
+      int upperBound = (int) (remainder / (numPiles - i));
       gold->goldCounter[i] = randomInt(1, upperBound);
       remainder -= gold->goldCounter[i];
     }

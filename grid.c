@@ -245,8 +245,8 @@ grid_isPlayer(grid_t* grid, int x, int y)
 bool
 grid_isGold(grid_t* grid, int x, int y)
 {
-  char **master = grid->g;
-  return master[y][x] == '*';
+  	char **master = grid->g;
+  	return master[y][x] == '*';
     // {
     //     return true;
     // }
@@ -256,12 +256,10 @@ grid_isGold(grid_t* grid, int x, int y)
 bool
 grid_isPassage(grid_t* grid, int x, int y)
 {
-  if (grid != NULL) {
+
     char **master = grid->g;
     return master[y][x] == '#';
-  }
-  return -1;
-    // {
+ 
     //     return true;
     // }
     // return false;
@@ -382,26 +380,26 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 			bool equality = false;
 			if(player->y == y){
 				int x1 = player->x;
-				while(!grid_isWall(Grid, x1, player->y)){
+				while(grid_isRoomSpot(Grid, x1, player->y)){
 					player_grid[player->y][x1] = master_grid[player->y][x1];
 					x1 += 1;
 				}
 				player_grid[player->y][x1] = master_grid[player->y][x1];
 				x1 = player->x;
-				while(!grid_isWall(Grid, x1, player->y)){
+				while(grid_isRoomSpot(Grid, x1, player->y)){
 					player_grid[player->y][x1] = master_grid[player->y][x1];
 					x1 -= 1;
 				}
 				player_grid[player->y][x1] = master_grid[player->y][x1];
 				if(player->x == x){
 					int y1 = player->y;
-					while(!grid_isWall(Grid, player->x, y1)){
+					while(grid_isRoomSpot(Grid, player->x, y1)){
 						player_grid[y1][player->x] = master_grid[y1][player->x];
 						y1 += 1;
 					}
 					player_grid[y1][player->x] = master_grid[y1][player->x];
 					y1 = player->y;
-					while(!grid_isWall(Grid, player->x, y1)){
+					while(grid_isRoomSpot(Grid, player->x, y1)){
 						player_grid[y1][player->x] = master_grid[y1][player->x];
 						y1 -= 1;
 					}
@@ -411,26 +409,26 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 			}
 			if(player->x == x){
 				int y1 = player->y;
-				while(!grid_isWall(Grid, player->x, y1)){
+				while(grid_isRoomSpot(Grid, player->x, y1)){
 					player_grid[y1][player->x] = master_grid[y1][player->x];
 					y1 += 1;
 				}
 				player_grid[y1][player->x] = master_grid[y1][player->x];
 				y1 = player->y;
-				while(!grid_isWall(Grid, player->x, y1)){
+				while(grid_isRoomSpot(Grid, player->x, y1)){
 					player_grid[y1][player->x] = master_grid[y1][player->x];
 					y1 -= 1;
 				}
 				player_grid[y1][player->x] = master_grid[y1][player->x];
 				if(player->y == y){
 					int x1 = player->x;
-					while(!grid_isWall(Grid, x1, player->y)){
+					while(grid_isRoomSpot(Grid, x1, player->y)){
 						player_grid[player->y][x1] = master_grid[player->y][x1];
 						x1 += 1;
 					}
 					player_grid[player->y][x1] = master_grid[player->y][x1];
 					x1 = player->x;
-					while(!grid_isWall(Grid, x1, player->y)){
+					while(grid_isRoomSpot(Grid, x1, player->y)){
 						player_grid[player->y][x1] = master_grid[player->y][x1];
 						x1 -= 1;
 					}
@@ -649,68 +647,51 @@ bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
 	int x = player2->x;
 	int y = player2->y;
 	if(player->y == y){
-		int x1 = player->x;
-		while(!grid_isWall(Grid, x1, player->y)){
-			if(grid_isPlayer(Grid, x1, player->y)){
-				return true;
-			}
+		if(player->x < x){
+			int x1 = player->x;
 			x1 += 1;
-		}
-		x1 = player->x;
-		while(!grid_isWall(Grid, x1, player->y)){
-			if(grid_isPlayer(Grid, x1, player->y)){
-				return true;
+			while(grid_isRoomSpot(Grid, x1, player->y)){
+				if(x == x1 && y == player->y){
+					return true;
+				}
+				x1 += 1;
 			}
+		}else{
+			int x1 = player->x;
 			x1 -= 1;
+			while(grid_isRoomSpot(Grid, x1, player->y)){
+				if(x == x1 && y == player->y){
+					return true;
+				}
+				x1 -= 1;
+			}
 		}
-		if(player->x == x){
+	}
+	if(player->x == x){
+		if(player->y < y){
 			int y1 = player->y;
-			while(!grid_isWall(Grid, player->x, y1)){
-				if(grid_isPlayer(Grid, player->x, y1)){
+			y1 += 1;
+			while(grid_isRoomSpot(Grid, player->x, y1)){
+				if(player->x == x && y == y1){
 					return true;
 				}
 				y1 += 1;
 			}
-			y1 = player->y;
-			while(!grid_isWall(Grid, player->x, y1)){
-					if(grid_isPlayer(Grid, player->x, y1)){
+		}else{
+			int y1 = player->y;
+			y1 -= 1;
+			while(grid_isRoomSpot(Grid, player->x, y1)){
+				printf("isplayer\n");
+				if(player->x == x && y == y1){
 					return true;
 				}
 				y1 -= 1;
 			}
 		}
 	}
-	if(player->x == x){
-		int y1 = player->y;
-		while(!grid_isWall(Grid, player->x, y1)){
-			if(grid_isPlayer(Grid, player->x, y1)){
-				return true;
-			}
-			y1 += 1;
-		}
-		y1 = player->y;
-		while(!grid_isWall(Grid, player->x, y1)){
-				if(grid_isPlayer(Grid, player->x, y1)){
-				return true;
-			}
-			y1 -= 1;
-		}
-		if(player->y == y){
-			int x1 = player->x;
-			while(!grid_isWall(Grid, x1, player->y)){
-				if(grid_isPlayer(Grid, x1, player->y)){
-					return true;
-				}
-				x1 += 1;
-			}
-			x1 = player->x;
-			while(!grid_isWall(Grid, x1, player->y)){
-				if(grid_isPlayer(Grid, x1, player->y)){
-					return true;
-				}
-				x1 -= 1;
-			}
-		}
+
+	if(player->x == x || player->y == y){
+		return false;
 	}
 
 	int quad = quadrant(x, y, player->x, player->y);
@@ -886,60 +867,66 @@ bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
 }
 
 void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
-  	grid_t* master = gameState->masterGrid;
+
+	if(gameState == NULL){
+		return NULL;
+	}
+	grid_t* Grid = gameState->masterGrid;
  	gold_t* gameGold = gameState->gameGold;
 	
   	char** player_grid = player->grid->g;
-	char** master_grid = master->g;
+	char** master_grid = Grid->g;
 	int* gold_array = gameGold->goldCounter;
 
-    if (grid_isGold(master, x, y)){
-		player_grid[player->y][player->x] = '.';
-		master_grid[player->y][player->x] = '.';
-
-		player->x = x;
-		player->y = y;
-			
-		player->gold = gold_array[gameGold->index];
-		// gameGold->goldremaining -= gold_array[gameGold->index];
-		gameGold->index += 1;
-        
-        master_grid[y][x] = player->letter;
-		player_grid[y][x] = player->letter;
-        
-        
-    }else if(grid_isPlayer(master, x, y)){
-
-		player_t **players = gameState->players;
-        for(int i = 0; i < 26;i++){
-			player_t* otherPlayer = players[i];
-			if (otherPlayer->x == x && otherPlayer->y == y){
-				otherPlayer->x = player->x;
-				otherPlayer->y = player->y;
-				
-				char** other_grid = otherPlayer->grid->g;
-						
-				other_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
-				master_grid[otherPlayer->y][otherPlayer->x] = otherPlayer->letter;
-				break;
-			}
+	player_t **players = gameState->players;
+	player_t* otherPlayer = NULL;
+	for(int i = 0; i < gameState->players_seen;i++){
+		otherPlayer = players[i];
+		if (otherPlayer->x == x && otherPlayer->y == y && otherPlayer->letter != player->letter){
+			break;
+		} else{
+			otherPlayer = NULL;
 		}
-        
-    player->x = x;
-		player->y = y;
-    
-    master_grid[y][x] = player->letter;
-		player_grid[y][x] = player->letter;
+	}
 
-	}else{
-    player_grid[player->y][player->x] = '.';
-		master_grid[player->y][player->x] = '.';
 
-    player->x = x;
-		player->y = y;
+	if(!grid_isWall(Grid, x, y)){
+		if (grid_isGold(Grid, x, y)){
+			player_grid[player->y][player->x] = '.';
+			master_grid[player->y][player->x] = '.';
 
-		master_grid[y][x] = player->letter;
-		player_grid[y][x] = player->letter;
+			player->x = x;
+			player->y = y;
+			
+			player->gold += gold_array[gameGold->index];
+			// gameGold->goldremaining -= gold_array[gameGold->index];
+			gameGold->index += 1;
+				
+			master_grid[player->y][player->x] = '.';
+
+		}else if(otherPlayer != NULL){
+
+			char** otherPlayer_grid = otherPlayer->grid->g;
+
+			int tempx = player->x;
+			int tempy = player->y;
+
+			player_grid[player->y][player->x] = '.';
+			master_grid[player->y][player->x] = '.';
+
+			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
+			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
+
+			player->y = otherPlayer->y;
+			player->x = otherPlayer->x;
+
+			otherPlayer->y = tempy;
+			otherPlayer->x = tempx;
+			
+		}else{
+			player->x = x;
+			player->y = y;
+		}
 	}
 }
 
