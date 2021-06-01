@@ -150,8 +150,12 @@ char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
     int otherPlayerY = allPlayers[i]->y;
 
     if( grid_isPlayerVisible(copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
-			if(!allPlayers[i]->hasQuit){
+			if(!allPlayers[i]->hasQuit && allPlayers[i] != current_player){
 				copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
+			}
+
+			if(allPlayers[i] == current_player){
+				copy->g[otherPlayerY][otherPlayerX] = '@';
 			}
     }
   }
