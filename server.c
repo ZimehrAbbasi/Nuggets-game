@@ -448,37 +448,81 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
         }
         break;
     case 'k': 
-        if(!grid_isWall(Grid, player->x, player->y+1)){
-            player->y+=1;
-        }
-        break;
-    case 'j': 
         if(!grid_isWall(Grid, player->x, player->y-1)){
             player->y-=1;
         }
         break;
-    case 'u': 
-        if(!grid_isWall(Grid, player->x+1, player->y+1)){
-            player->x+=1; 
+    case 'j': 
+        if(!grid_isWall(Grid, player->x, player->y+1)){
             player->y+=1;
+        }
+        break;
+    case 'u': 
+        if(!grid_isWall(Grid, player->x+1, player->y-1)){
+            player->x+=1; 
+            player->y-=1;
         }
         break;
     case 'y': 
-        if(!grid_isWall(Grid, player->x-1, player->y+1)){
-            player->x-=1; 
-            player->y+=1;
-        }
-        break;
-    case 'b': 
         if(!grid_isWall(Grid, player->x-1, player->y-1)){
             player->x-=1; 
             player->y-=1;
         }
         break;
+    case 'b': 
+        if(!grid_isWall(Grid, player->x-1, player->y+1)){
+            player->x-=1; 
+            player->y+=1;
+        }
+        break;
     case 'n': 
-        if(!grid_isWall(Grid, player->x+1, player->y-1)){
+        if(!grid_isWall(Grid, player->x+1, player->y+1)){
+            player->x+=1; 
+            player->y+=1;
+        }
+        break;
+    case 'L': 
+        while(!grid_isWall(Grid, player->x+1, player->y)){
+            player->x += 1;
+        }
+        break;
+    case 'H': 
+        while(!grid_isWall(Grid, player->x-1, player->y)){
+            player->x-=1;
+        }
+        break;
+    case 'K': 
+        while(!grid_isWall(Grid, player->x, player->y-1)){
+            player->y-=1;
+        }
+        break;
+    case 'J': 
+        while(!grid_isWall(Grid, player->x, player->y+1)){
+            player->y+=1;
+        }
+        break;
+    case 'U': 
+        while(!grid_isWall(Grid, player->x+1, player->y-1)){
             player->x+=1; 
             player->y-=1;
+        }
+        break;
+    case 'Y': 
+        while(!grid_isWall(Grid, player->x-1, player->y-1)){
+            player->x-=1; 
+            player->y-=1;
+        }
+        break;
+    case 'B': 
+        while(!grid_isWall(Grid, player->x-1, player->y+1)){
+            player->x-=1; 
+            player->y+=1;
+        }
+        break;
+    case 'N': 
+        while(!grid_isWall(Grid, player->x+1, player->y+1)){
+            player->x+=1; 
+            player->y+=1;
         }
         break;
     default:
