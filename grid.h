@@ -66,7 +66,7 @@ grid_t* grid_init(FILE* mapfile);
 grid_t* grid_initForPlayer(grid_t* masterGrid);
 
 
-bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2);
+bool grid_isPlayerVisible(gamestate_t* gamestate, grid_t* Grid, player_t* player, player_t* player2);
 
 char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player);
 

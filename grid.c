@@ -146,7 +146,7 @@ char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
     int otherPlayerX = allPlayers[i]->x;
     int otherPlayerY = allPlayers[i]->y;
 
-    if( grid_isPlayerVisible(copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
+    if( grid_isPlayerVisible(state, copy, current_player, allPlayers[i]) || allPlayers[i] == current_player){
 			if(!allPlayers[i]->hasQuit && allPlayers[i] != current_player){
 				copy->g[otherPlayerY][otherPlayerX] = allPlayers[i]->letter;
 			}
@@ -591,14 +591,14 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 
 }
 
-bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
+bool grid_isPlayerVisible(gamestate_t* state, grid_t* Grid, player_t* player, player_t* player2){
     double slope;
     double x_pred, y_pred;
     int upper, lower;
 	int x = player2->x;
 	int y = player2->y;
 
-	if(grid_isPassage(Grid, player->x, player->y)){
+	if(grid_isPassage(state->masterGrid, player->x, player->y) || grid_isPassage(state->masterGrid, player2->x, player2->y)){
 		return false;
 	}
 
