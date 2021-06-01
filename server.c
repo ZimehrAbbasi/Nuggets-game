@@ -100,22 +100,6 @@ numberOfColumns(FILE* mapfile)
 }
 
 
-static void gold_distribute(grid_t* Grid, gold_t* Gold){
-  char **grid = Grid->g;
-
-  int i = 0;
-  int x, y;
-
-  while(i < Gold->numPiles){
-    x = randomInt(1, Grid->cols);
-    y = randomInt(1, Grid->rows);
-    if(grid[y][x] == '.'){
-      grid[y][x] = '*';
-      i += 1;
-    }
-  }
-}
-
 static
 gamestate_t* game_init(FILE* mapFile)
 {
