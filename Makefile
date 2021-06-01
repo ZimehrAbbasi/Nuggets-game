@@ -64,3 +64,4 @@ clean:
 	rm -rf *~ *.o
 	rm -rf $(PROG)
 	rm -rf $(LIB)
+	make -C $(L) clean
