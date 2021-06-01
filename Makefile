@@ -13,7 +13,7 @@ CFLAGS= -Wall -pedantic -std=c11 -ggdb -I$(L)
 CC=gcc
 
 ######### local dependencies ##########
-LIB = stuff.a
+LIB = locallib.a
 
 
 PROG = server
@@ -35,7 +35,7 @@ $(LIB): gamestate.o player.o grid.o gold.o spectator.o
 ###### dependency objects #######
 server.o: server.c $(LIB)
 
-gamestate.o: player.h grid.h gold.h spectator.h gamestate.h
+gamestate.o:  gamestate.h player.h grid.h gold.h spectator.h
 
 player.o: player.h grid.h $(L)/message.h
 
