@@ -17,7 +17,7 @@ MAKE = make
 ############# default rule ###########
 all: $(LIB) $(TESTS) 
 
-$(LIB): message.o log.o
+$(LIB): message.o log.o file.o
 	ar cr $(LIB) $^
 
 messagetest: message.c message.h log.o
@@ -25,6 +25,7 @@ messagetest: message.c message.h log.o
 
 message.o: message.h
 log.o: log.h
+file.o: file.h
 
 ############# clean ###########
 clean:

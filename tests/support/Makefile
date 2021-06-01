@@ -1,6 +1,6 @@
 #
 # Makefile for server tests
-# CS50 project Spring 2019
+# CS50 project Spring 2021
 #
 # TEAM PINE, May 2021
 #
