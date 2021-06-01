@@ -471,12 +471,11 @@ static void
 displayForPlayer(gamestate_t* state, player_t* player){
   // Update player's visible grid
   grid_t* entireGrid = state->masterGrid;
-  //grid_calculateVisibility(entireGrid, player);
-  player->grid = entireGrid;
+  grid_calculateVisibility(entireGrid, player);
 
   // Covert visible grid to string
   grid_t* playerGrid = player->grid;
-  char* playerGridAsString = grid_toString(state, entireGrid);
+  char* playerGridAsString = grid_toString(state, playerGrid);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
