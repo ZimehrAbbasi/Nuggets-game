@@ -140,9 +140,6 @@ char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
   // Get a copy of the master grid
   grid_t* copy = grid_copy(current_player->grid);
 
-  // Alias player grid
-  grid_t* player_grid = current_player->grid;
-
   // Loop through and add player chars for associated points into copy of grid
   player_t** allPlayers = state->players;
   for(int i = 0; i < state->players_seen; i++){
@@ -345,18 +342,6 @@ static double calculate_slope(int x1, int y1, int x2, int y2){
     }
 
     return ((double)(x1 - x2))/((double)(y1 - y2));
-}
-
-static double func(int x, int y, double slope){
-    return ((slope * (double)x) + (double)y);
-}
-
-static int max(int num1, int num2){
-    return num1 > num2 ? num1 : num2;
-}
-
-static int min(int num1, int num2){
-    return num1 > num2 ? num2 : num1;
 }
 
 static int quadrant(int x1, int y1, int x2, int y2){
@@ -655,8 +640,6 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 }
 
 bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
-	char **master_grid = Grid->g;
-    char **player_grid = player->grid->g;
     double slope;
     double x_pred, y_pred;
     int upper, lower;

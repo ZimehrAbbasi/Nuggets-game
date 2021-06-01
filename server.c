@@ -37,7 +37,6 @@ const int GoldMaxNumPiles = 30;
 
 // Function prototypes
 void parseArgs(const int argc, const char* argv[], int* seed);
-static int numberOfColumns(FILE* mapfile);
 static gamestate_t* game_init(FILE* mapfile);
 static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
@@ -89,20 +88,6 @@ parseArgs(const int argc, const char* argv[], int* seed)
   }
   fclose(fp);
 }
-
-static int
-numberOfColumns(FILE* mapfile)
-{
-  char* line = file_readLine(mapfile);
-
-  if(line == NULL) return 0;
-
-  int len = strlen(line);
-  free(line);
-
-  return len;
-}
-
 
 static
 gamestate_t* game_init(FILE* mapFile)
@@ -582,7 +567,6 @@ displayForPlayer(gamestate_t* state, player_t* player){
   grid_calculateVisibility(entireGrid, player);
 
   // Covert visible grid to string
-  grid_t* playerGrid = player->grid;
   char* playerGridAsString = grid_toStringForPlayer(state, player);
   
   // Create message header
@@ -622,7 +606,7 @@ isGameEnded(gamestate_t* state){
 void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 
 	if(gameState == NULL){
-		return NULL;
+		return;
 	}
 	grid_t* Grid = gameState->masterGrid;
  	gold_t* gameGold = gameState->gameGold;
