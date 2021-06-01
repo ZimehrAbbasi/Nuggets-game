@@ -298,7 +298,7 @@ bool grid_canMove(grid_t* Grid, player_t* player, char k){
             return true;
         }
         break;
-    case 'k': 
+    case 'k':
         if(!grid_isWall(Grid, player->x, player->y+1)){
             return true;
         }
@@ -366,6 +366,7 @@ static int quadrant(int x1, int y1, int x2, int y2){
 		return 4;
 	}
 }
+
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
     char **master_grid = Grid->g;
@@ -438,6 +439,10 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 					player_grid[player->y][x1] = master_grid[player->y][x1];
 				}
 				equality = true;
+			}
+
+			if(grid_isGold(Grid, x, y) && player_grid[y][x] != ' '){
+				player_grid[y][x] = '.';
 			}
 
 			if(equality){
@@ -631,11 +636,15 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
 				}
 			}
 			if(visibility){
-					player_grid[y][x] = master_grid[y][x];
-          			if(grid_isGold(Grid, x, y)){
-						player_grid[y][x] = '*';
-					}
+				player_grid[y][x] = master_grid[y][x];
+				if(grid_isGold(Grid, x, y)){
+					player_grid[y][x] = '*';
 				}
+			}else{
+				if(grid_isGold(Grid, x, y) && player_grid[y][x] != ' '){
+					player_grid[y][x] = '.';
+				}
+			}
         }
     }
 
