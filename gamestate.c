@@ -16,22 +16,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "player.h"
-#include "grid.h"
-#include "gold.h"
-#include "spectator.h"
-#include "gamestate.h"
+#include "player.h"     /* player module */
+#include "grid.h"       /* grid module */
+#include "gold.h"       /* gold module */
+#include "spectator.h"  /* spectator module */
+#include "gamestate.h"  /* self */
 
+/********* static function prototypes **********/
 static void gamestate_initPlayers(gamestate_t* state);
 static void gamestate_initGold(gamestate_t* state);
 static void gamestate_initGrid(gamestate_t* state, FILE* mapFile);
 static void gamestate_initSpectator(gamestate_t* state);
 static void gamestate_playersDeleteHelper(gamestate_t* state);
 
-/**
- * @brief: constructor. 
- * See gamestate.h for detailed documentation.
- */
 
 /**
  * @brief constructor.

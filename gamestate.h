@@ -12,8 +12,13 @@
 #ifndef __GAMESTATE_H
 #define __GAMESTATE_H
 
-#include "spectator.h"
-#include "gold.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "player.h"     /* player module */
+#include "grid.h"       /* grid module */
+#include "gold.h"       /* gold module */
+#include "spectator.h"  /* spectator module */
 
 /**
  * @brief: The gamestate_t* struct tracks the state of the game, 
