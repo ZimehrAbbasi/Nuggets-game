@@ -28,12 +28,11 @@ typedef struct grid {
 } grid_t;
 
 typedef struct player player_t;
+typedef struct game gamestate_t;
 
 grid_t* grid_init(FILE* mapfile);
 
 grid_t* grid_initForPlayer(grid_t* masterGrid);
-
-char* grid_toString(grid_t* Grid);
 
 void grid_delete(grid_t* grid);
 
@@ -56,5 +55,9 @@ bool grid_isSpace(grid_t* grid, int x, int y);
 bool grid_canMove(grid_t* master, player_t* player, char k);
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player);
+
+grid_t* grid_copy(grid_t* original_grid);
+
+char* grid_toString(gamestate_t* state, grid_t* grid);
 
 #endif /* __GRID_H */

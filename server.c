@@ -41,6 +41,7 @@ static void displayForPlayer(gamestate_t* state, player_t* player);
 static int getRemainingGold(gamestate_t* state);
 static void sendGoldToPlayers(gamestate_t* state);
 static void sendPlayerOK(player_t* player);
+static void sendGoldToSpectator(gamestate_t* state);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -246,7 +247,6 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 
           /* add spectator to game */
           addSpectatorToGame(state, fromAddress);
-          printf("\n\n\n\n\n\n\n\n----------ADDED SPECTATOR----------\n\n\n\n\n\n\n\n");
         }
         else {
           // Oherwise end error message to from address and log to stderr
@@ -359,7 +359,11 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     displayForPlayer(state, clients[i]);
   }
 
+  // Send gold to players
   sendGoldToPlayers(state);
+
+  // Send gold to spectator
+  sendGoldToSpectator(state);
 
   // Check if game is ended
   if(!isGameEnded(state)){
@@ -462,7 +466,7 @@ static void
 displayForSpectator(gamestate_t* state, spectator_t* spectator){
   // Convert master grid to a string
   grid_t* entireGrid = state->masterGrid;
-  char* masterGridAsString = grid_toString(entireGrid);
+  char* masterGridAsString = grid_toString(state, entireGrid);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
@@ -485,7 +489,7 @@ displayForPlayer(gamestate_t* state, player_t* player){
 
   // Covert visible grid to string
   grid_t* playerGrid = player->grid;
-  char* playerGridAsString = grid_toString(playerGrid);
+  char* playerGridAsString = grid_toString(state, playerGrid);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
@@ -542,6 +546,27 @@ sendGoldToPlayers(gamestate_t* state){
     // Free used memory
     free(goldMessage);
   }
+}
+
+static void
+sendGoldToSpectator(gamestate_t* state){
+  // Get spectator object
+  spectator_t* spectator = state->spectator;
+
+  // Get numbers for amnt of gold
+  int currentGold = 0;
+  int justCollectedGold = 0;
+  int goldLeftInGame = getRemainingGold(state);
+
+  // Create gold message
+  char* goldMessage = malloc(sizeof(char) * 100);
+  sprintf(goldMessage, "GOLD %d %d %d", currentGold, justCollectedGold, goldLeftInGame);
+  
+  // Send gold message
+  spectator_send(spectator, goldMessage);
+
+  //Free created memory
+  free(goldMessage);
 }
 
 static int
