@@ -58,6 +58,7 @@ static void sendPlayerOK(player_t* player);
 static void sendGoldToSpectator(gamestate_t* state);
 static void handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey);
 static void playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold);
+static void endGame(gamestate_t* state);
 
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
@@ -141,6 +142,36 @@ game_close(gamestate_t* gameState)
   }
 }
 
+static void endGame(gamestate_t* state){
+  // Get array of players and length of players array
+  player_t** allPlayers = state->players;
+  int numPlayers = state->players_seen;
+
+  // Allocate space for message to players
+  char* endMessage = calloc(1+numPlayers, (MaxNameLength*sizeof(char)) + 20);
+
+  // Loop over every player and add info to leaderboard
+  strcpy(endMessage, "QUIT GAME OVER:\n");
+  for(int i = 0; i < numPlayers; i++){
+    char* tempBuffer = calloc(1, (MaxNameLength*sizeof(char)) + 20);
+
+    // Concatenate new player info onto leaderboard
+    sprintf(tempBuffer, "%c    %d  %s\n", allPlayers[i]->letter, allPlayers[i]->gold, allPlayers[i]->name);
+    strcat(endMessage, tempBuffer);
+    
+    // Free associated memory
+    free(tempBuffer);
+  }
+
+  // Send message to all players and the specatator
+  for(int i = 0; i < numPlayers; i++){
+    player_send(allPlayers[i], endMessage);
+  }
+  spectator_send(state->spectator, endMessage);
+
+  // Free ending message
+  free(endMessage);
+}
 
 char**
 tokenize(char* message)
@@ -356,6 +387,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     return false;
   }else{
     // Do things for when game is over
+    endGame(state);
     return true;
   }
 }
