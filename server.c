@@ -450,9 +450,12 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 	player_t* player = gamestate_findPlayerByAddress(state, fromAddress);
 	grid_t* Grid = state->masterGrid;
 
-	// If cant find player
-	if (player == NULL){
+	// If cant find player but can find spectator
+	if (player == NULL &&  message_eqAddr(fromAddress, state->spectator->address) ){
 		fprintf(stderr, "Couldn't find a matching player for key press");
+    if (pressedKey == 'Q'){
+      handleSpectatorQuit(state, fromAddress);
+    }
 		return;
 	}
 
@@ -521,11 +524,13 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
             movePlayer(state, player, player->x+1, player->y+1);
         }
         break;
+    case 'Q':
+      handlePlayerQuit(state, fromAddress);
+      break;
     default:
         break;
     }
 }
-
 
 static void
 handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
