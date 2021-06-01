@@ -286,55 +286,6 @@ grid_isRoomSpot(grid_t* grid, int x, int y){
 	return true;
 }
 
-bool grid_canMove(grid_t* Grid, player_t* player, char k){
-    char letter = k;
-    switch (letter) {
-    case 'l': 
-        if(!grid_isWall(Grid, player->x+1, player->y)){
-            return true;
-        }
-        break;
-    case 'h': 
-        if(!grid_isWall(Grid, player->x-1, player->y)){
-            return true;
-        }
-        break;
-    case 'k':
-        if(!grid_isWall(Grid, player->x, player->y+1)){
-            return true;
-        }
-        break;
-    case 'j': 
-        if(!grid_isWall(Grid, player->x, player->y-1)){
-            return true;
-        }
-        break;
-    case 'u': 
-        if(!grid_isWall(Grid, player->x+1, player->y+1)){
-            return true;
-        }
-        break;
-    case 'y': 
-        if(!grid_isWall(Grid, player->x-1, player->y+1)){
-            return true;
-        }
-        break;
-    case 'b': 
-        if(!grid_isWall(Grid, player->x-1, player->y-1)){
-            return true;
-        }
-        break;
-    case 'n': 
-        if(!grid_isWall(Grid, player->x+1, player->y-1)){
-            return true;
-        }
-        break;
-    default:
-        return false;
-    }
-    return false;
-}
-
 static double calculate_slope(int x1, int y1, int x2, int y2){
 
     if(y1 == y2){
@@ -364,6 +315,7 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     double x_pred, y_pred;
     int upper, lower;
     bool visibility;
+
 	for(int y = 0; y < Grid->rows; y++){
     	for(int x = 0; x < Grid->cols; x++){
 			if(master_grid[y][x] == ' '){
@@ -645,6 +597,11 @@ bool grid_isPlayerVisible(grid_t* Grid, player_t* player, player_t* player2){
     int upper, lower;
 	int x = player2->x;
 	int y = player2->y;
+
+	if(grid_isPassage(Grid, player->x, player->y)){
+		return false;
+	}
+
 	if(player->y == y){
 		if(player->x < x){
 			int x1 = player->x;

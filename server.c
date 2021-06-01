@@ -608,6 +608,11 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 	if(gameState == NULL){
 		return;
 	}
+
+  if(x < 0 || y < 0|| x >= gameState->masterGrid->cols || y >= gameState->masterGrid->rows){
+    return;
+  }
+
 	grid_t* Grid = gameState->masterGrid;
  	gold_t* gameGold = gameState->gameGold;
 	
