@@ -6,7 +6,6 @@
 #include <float.h>
 #include <math.h>
 
-
 #include "support/file.h"         /* file operations */
 #include "support/message.h"      /* message operations */
 #include "player.h"       /* player module */
@@ -100,29 +99,58 @@ grid_initForPlayer(grid_t* masterGrid)
   return NULL;
 }
 
-char* grid_toString(grid_t* grid){
+char* grid_toString(gamestate_t* state, grid_t* grid){
   if (grid == NULL){
     return NULL;
   }
-  char* stringifiedGrid = malloc(((grid->rows)*sizeof(char*)) * grid->cols);
-  char** map = grid->g;
-  for(int x = 0; x < grid->rows; x++){
+  // Get a copy of the master grid
+  grid_t* copy = grid_copy(grid);
+
+  // Loop through and add player chars for associated points into copy of grid
+  player_t** allPlayers = state->players;
+  for(int i = 0; i < state->players_seen; i++){
+    printf("\n\n\n\nPLAYER NAME: %s\n\n\n\n", allPlayers[i]->name);
+    // Update copy of grid with player letters
+    int currentPlayerX = allPlayers[i]->x;
+    int currentPlayerY = allPlayers[i]->y;
+
+    copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
+  }
+
+  char* stringifiedGrid = malloc(((copy->rows)*sizeof(char*)) * copy->cols);
+  char** map = copy->g;
+  for(int x = 0; x < copy->rows; x++){
     strcat(stringifiedGrid, map[x]);
-    if (x != grid->rows-1) {
+    if (x != copy->rows-1) {
       strcat(stringifiedGrid, "\n");
     }  
-      // for(int y = 0; y < Grid->cols; y++){
-      //     sprintf(stringifiedGrid, "%c", grid[y]);
-      // }
-      // sprintf(stringifiedGrid, "\n");
   }
+
+  // Free copy of grid
+  grid_delete(copy);
+
+  // Return stringified result
   return stringifiedGrid;
+}
+
+grid_t*
+grid_copy(grid_t* original_grid){
+  // Create pointer to new grid object with correct dimensions
+  grid_t* copy = grid_initForPlayer(original_grid);
+
+  // Loop over every line in orig. grid and copy into new grid
+  for(int y = 0; y < copy->rows; y++){
+    // Copy line
+    strcpy(copy->g[y], original_grid->g[y]);
+  }
+
+  return copy;
 }
 
 char* 
 grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
 {
-  char* map = grid_toString(grid);
+  char* map = grid_toString(gamestate, grid);
   int cols = grid_getColumns(grid);
 
   player_t** players = gamestate_getPlayers(gamestate);
@@ -264,98 +292,98 @@ static int min(int num1, int num2){
     return num1 > num2 ? num2 : num1;
 }
 
-void grid_calculateVisibility(grid_t* Grid, player_t* player){
+// void grid_calculateVisibility(grid_t* Grid, player_t* player){
     
-    printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
+//     printf("\nPlayer X: %d\n PlayerY: %d\n", player->x, player->y);
     
-    char **master_grid = Grid->g;
-    char **player_grid = player->grid->g;
-    double slope;
-    double x_pred, y_pred;
-    int upper, lower;
-    bool visibility;
-	master_grid[player->y][player->x] = 'A';
-	for(int y = 0; y < Grid->rows; y++){
-		for(int x = 0; x < Grid->cols; x++){
-			printf("%c", master_grid[y][x]);
-		}
-		printf("\n");
-	}
+//     char **master_grid = Grid->g;
+//     char **player_grid = player->grid->g;
+//     double slope;
+//     double x_pred, y_pred;
+//     int upper, lower;
+//     bool visibility;
+// 	master_grid[player->y][player->x] = 'A';
+// 	for(int y = 0; y < Grid->rows; y++){
+// 		for(int x = 0; x < Grid->cols; x++){
+// 			printf("%c", master_grid[y][x]);
+// 		}
+// 		printf("\n");
+// 	}
 	
-	for(int y = 0; y < Grid->rows; y++){
-    	for(int x = 0; x < Grid->cols; x++){
-			x = 10;
-			y = 1;
-            if(master_grid[y][x] == ' '){
-              continue;
-            }
-            slope = calculate_slope(x, y, player->x, player->y);
+// 	for(int y = 0; y < Grid->rows; y++){
+//     	for(int x = 0; x < Grid->cols; x++){
+// 			x = 10;
+// 			y = 1;
+//             if(master_grid[y][x] == ' '){
+//               continue;
+//             }
+//             slope = calculate_slope(x, y, player->x, player->y);
 
-			if(player->x == x){
-				int x1 = player->x;
-				while(!grid_isWall()){
+// 			if(player->x == x){
+// 				int x1 = player->x;
+// 				while(!grid_isWall()){
 					
-				}
-			}
+// 				}
+// 			}
 
-			printf("%f\n", slope);
-            visibility = true;
-            if(abs(player->y - y) > abs(player->x - x)){
-				int start = min(y, player->y);
-                for(int y1 = 0; y1 < max(y, player->y)-start; y1++){
+// 			printf("%f\n", slope);
+//             visibility = true;
+//             if(abs(player->y - y) > abs(player->x - x)){
+// 				int start = min(y, player->y);
+//                 for(int y1 = 0; y1 < max(y, player->y)-start; y1++){
 
-					if(x < player->x){
-						x_pred = 1/slope * y1 + x;
-					}else{
-						x_pred = -1/slope * y1 + player->x;;
-					}
-					int pred_y = start - y1;
-                    if(x_pred < 0 || x_pred > Grid->cols || pred_y < 0 || pred_y > Grid->rows){
-                      continue;
-                    }
-                    upper = (int)ceil(x_pred);
-                    lower = (int)floor(x_pred);
-                    if(grid_isWall(Grid, upper, pred_y) || grid_isWall(Grid, lower, pred_y)){
-                      	visibility = false;
-                      	break; 
-                    }
-                }
-            }else{
-				int start = min(x, player->x);
-                for(int x1 = 0; x1 < max(x, player->x)-start; x1++){
+// 					if(x < player->x){
+// 						x_pred = 1/slope * y1 + x;
+// 					}else{
+// 						x_pred = -1/slope * y1 + player->x;;
+// 					}
+// 					int pred_y = start - y1;
+//                     if(x_pred < 0 || x_pred > Grid->cols || pred_y < 0 || pred_y > Grid->rows){
+//                       continue;
+//                     }
+//                     upper = (int)ceil(x_pred);
+//                     lower = (int)floor(x_pred);
+//                     if(grid_isWall(Grid, upper, pred_y) || grid_isWall(Grid, lower, pred_y)){
+//                       	visibility = false;
+//                       	break; 
+//                     }
+//                 }
+//             }else{
+// 				int start = min(x, player->x);
+//                 for(int x1 = 0; x1 < max(x, player->x)-start; x1++){
 					
-					if(y < player->y){
-						y_pred = -slope * x1 + y;
-					}else{
-						y_pred = slope * x1 + player->y;
-					}
-                    int pred_x = start - x1;
-                    if(y_pred < 0 || y_pred > Grid->rows || pred_x < 0 || pred_x > Grid->cols){
-                      	continue;
-                    }
-                    upper = (int)ceil(y_pred);
-                    lower = (int)floor(y_pred);
+// 					if(y < player->y){
+// 						y_pred = -slope * x1 + y;
+// 					}else{
+// 						y_pred = slope * x1 + player->y;
+// 					}
+//                     int pred_x = start - x1;
+//                     if(y_pred < 0 || y_pred > Grid->rows || pred_x < 0 || pred_x > Grid->cols){
+//                       	continue;
+//                     }
+//                     upper = (int)ceil(y_pred);
+//                     lower = (int)floor(y_pred);
 					
-                    if(grid_isWall(Grid, pred_x, upper) || grid_isWall(Grid, pred_x, lower)){
-                      	visibility = false;
-                      	break; 
-                    }
-                }
-            }
+//                     if(grid_isWall(Grid, pred_x, upper) || grid_isWall(Grid, pred_x, lower)){
+//                       	visibility = false;
+//                       	break; 
+//                     }
+//                 }
+//             }
 
-            if(visibility){
-                player_grid[y][x] = master_grid[y][x];
-            }else{
-                if(grid_isGold(Grid, x, y)){
-                    player_grid[y][x] = '.';
-                }
-            }
+//             if(visibility){
+//                 player_grid[y][x] = master_grid[y][x];
+//             }else{
+//                 if(grid_isGold(Grid, x, y)){
+//                     player_grid[y][x] = '.';
+//                 }
+//             }
 
-			exit(1);
-        }
-    }
+// 			exit(1);
+//         }
+//     }
 
-}
+// }
 
 void grid_movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
     grid_t* master = gameState->masterGrid;

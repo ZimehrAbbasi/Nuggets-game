@@ -466,7 +466,7 @@ static void
 displayForSpectator(gamestate_t* state, spectator_t* spectator){
   // Convert master grid to a string
   grid_t* entireGrid = state->masterGrid;
-  char* masterGridAsString = grid_toString(entireGrid);
+  char* masterGridAsString = grid_toString(state, entireGrid);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
@@ -489,7 +489,7 @@ displayForPlayer(gamestate_t* state, player_t* player){
 
   // Covert visible grid to string
   grid_t* playerGrid = player->grid;
-  char* playerGridAsString = grid_toString(playerGrid);
+  char* playerGridAsString = grid_toString(state, playerGrid);
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
