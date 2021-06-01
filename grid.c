@@ -161,12 +161,11 @@ grid_toString(gamestate_t* state, grid_t* grid)
     return NULL;
   }
   // Get a copy of the master grid
-  grid_t* copy = grid_copy(grid);
+  grid_t* copy = grid_copy(state->masterGrid);
 
   // Loop through and add player chars for associated points into copy of grid
   player_t** allPlayers = state->players;
   for(int i = 0; i < state->players_seen; i++){
-    printf("\n\n\n\nPLAYER NAME: %s\n\n\n\n", allPlayers[i]->name);
     // Update copy of grid with player letters
     int currentPlayerX = allPlayers[i]->x;
     int currentPlayerY = allPlayers[i]->y;
@@ -174,7 +173,7 @@ grid_toString(gamestate_t* state, grid_t* grid)
     copy->g[currentPlayerY][currentPlayerX] = allPlayers[i]->letter;
   }
 
-  char* stringifiedGrid = malloc(((copy->rows)*sizeof(char*)) * copy->cols);
+  char* stringifiedGrid = calloc(1, ((copy->rows)*sizeof(char*)) * copy->cols);
   char** map = copy->g;
   for(int x = 0; x < copy->rows; x++){
     strcat(stringifiedGrid, map[x]);
