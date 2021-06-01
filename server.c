@@ -1,16 +1,31 @@
+/**
+ * @file server.c
+ * @author TEAM PINE
+ * @brief: defines functionality for the server,
+ * which interacts with other modules for functionality
+ * to offer an interactive game.
+ * @version 0.1
+ * @date 2021-06-01
+ * 
+ * @copyright Copyright (c) 2021
+ * 
+ */
+
+/* standard libraries */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <string.h>
-#include "support/file.h"
-#include "support/message.h"
-#include "support/log.h"
-#include "gamestate.h"
-#include "grid.h"
-#include "gold.h"
-#include "player.h"
-#include "spectator.h"
+
+#include "file.h"         /* file operations */
+#include "message.h"      /* message operations */
+#include "log.h"          /* logging operations */
+#include "gamestate.h"    /* gamestate module */
+#include "grid.h"         /* grid module */
+#include "gold.h"         /* gold module */
+#include "player.h"       /* player module */
+#include "spectator.h"    /* spectator module */
 
 // Global Variables
 const int MaxNameLength = 50;
@@ -23,7 +38,6 @@ const int GoldMaxNumPiles = 30;
 // Function prototypes
 void parseArgs(const int argc, const char* argv[], int* seed);
 static int numberOfColumns(FILE* mapfile);
-//static void gold_distribute(grid_t* Grid, gold_t* Gold);
 static gamestate_t* game_init(FILE* mapfile);
 static void game_close(gamestate_t* gameState);
 void handleInput(void* arg);
@@ -46,30 +60,30 @@ static void sendGoldToSpectator(gamestate_t* state);
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
 {
-    // Check for illegal # of arguments
-    if(argc != 3){
-        fprintf(stderr, "Illegal number of arguments...\n");
-        exit(1);
-    }
+  // Check for illegal # of arguments
+  if(argc != 3){
+    fprintf(stderr, "Illegal number of arguments...\n");
+    exit(1);
+  }
 
-    // Make sure seed is a valid number
-    for(int i = 0; i < strlen(argv[2]); i++){
-        if(!isdigit(argv[2][i])){
-            fprintf(stderr, "Invalid seed...\n");
-            exit(1);
-        }
+  // Make sure seed is a valid number
+  for(int i = 0; i < strlen(argv[2]); i++){
+    if(!isdigit(argv[2][i])){
+      fprintf(stderr, "Invalid seed...\n");
+      exit(1);
     }
+  }
 
-    // Set seed value
-    *seed = atoi(argv[2]);
+  // Set seed value
+  *seed = atoi(argv[2]);
 
-    // Try to open map file
-    FILE* fp;
-    if((fp = fopen(argv[1], "r")) == NULL){
-        fprintf(stderr, "Could not open file...\n");
-        exit(1);
-    }
-    fclose(fp);
+  // Try to open map file
+  FILE* fp;
+  if((fp = fopen(argv[1], "r")) == NULL){
+    fprintf(stderr, "Could not open file...\n");
+    exit(1);
+  }
+  fclose(fp);
 }
 
 static int
@@ -87,19 +101,19 @@ numberOfColumns(FILE* mapfile)
 
 
 static void gold_distribute(grid_t* Grid, gold_t* Gold){
-    char **grid = Grid->g;
+  char **grid = Grid->g;
 
-    int i = 0;
-    int x, y;
+  int i = 0;
+  int x, y;
 
-    while(i < Gold->numPiles){
-        x = randomInt(1, Grid->cols);
-        y = randomInt(1, Grid->rows);
-        if(grid[y][x] == '.'){
-            grid[y][x] = '*';
-            i += 1;
-        }
+  while(i < Gold->numPiles){
+    x = randomInt(1, Grid->cols);
+    y = randomInt(1, Grid->rows);
+    if(grid[y][x] == '.'){
+      grid[y][x] = '*';
+      i += 1;
     }
+  }
 }
 
 static
@@ -141,9 +155,6 @@ game_close(gamestate_t* gameState)
   }
 }
 
-// void handleInput(void* arg){
-
-// }
 
 char**
 tokenize(char* message)
@@ -234,9 +245,6 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
         }
         else {
           reportMalformedMessage(fromAddress, message_copy, "is not a valid gameplay message.");
-          // message_send(fromAddress, "ERROR malformed message\n");
-          // fprintf(stderr, "'%s' is not a valid gameplay message.\n", message);
-          // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;
 
@@ -251,9 +259,6 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
         else {
           // Oherwise end error message to from address and log to stderr
           reportMalformedMessage(fromAddress, message_copy, "is not a valid add spectator message.");
-          // message_send(fromAddress, "ERROR malformed message\n");
-          // fprintf(stderr, "'%s' is not a valid add spectator message.\n", message);
-          // fprintf(stderr, "Error: invalid action sequence detected. Stop.\n");
         }
         break;
       case 'Q':
@@ -332,14 +337,10 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
           else {
             grid_delete(playerGrid);
             reportMalformedMessage(fromAddress, message_copy, "is not a valid player message.");
-            // fprintf(stderr, "'%s' is not a valid add player message.\n", message);
-            // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
           }
         }
         else {
           reportMalformedMessage(fromAddress, message_copy, "is not a valid message.");
-          // fprintf(stderr, "'%s' is not a valid message.\n", message);
-          // fprintf(stderr, "Invalid action sequence detected. Stop.\n");
         }
         break;
 
@@ -436,7 +437,7 @@ handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
   spectator_delete(spectator);
 
   /* reset state spectator pointer to NULL 
-      (just so we don't get any surprises) */
+     (just so we don't get any surprises) */
   state->spectator = NULL;
 }
 
@@ -455,8 +456,8 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   }
 
   /* if the search function returns NULL, 
-      no player was found. 
-      print to stderr. */
+     no player was found. 
+     print to stderr. */
   else {
     fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
@@ -602,40 +603,37 @@ main(const int argc, const char* argv[])
   fprintf(stdout, "GOT HERE!");
 
 
-    // Parse arguments  and use seed value
-    int seed = 0;
-    parseArgs(argc, argv, &seed);
-    srand(seed);
+  // Parse arguments  and use seed value
+  int seed = 0;
+  parseArgs(argc, argv, &seed);
+  srand(seed);
 
-    // Open and close map file and init gamestate object
-    FILE* fp  = fopen(argv[1], "r");
-    gamestate_t* gs = game_init(fp);
-    if(gs == NULL){
-      printf("NULL GAMESTATE!\n");
+  // Open and close map file and init gamestate object
+  FILE* fp  = fopen(argv[1], "r");
+  gamestate_t* gs = game_init(fp);
+  if(gs == NULL){
+    printf("NULL GAMESTATE!\n");
+    exit(1);
+  }
+  fclose(fp);
+
+  // Initialize network and get port number
+  int port = message_init(stderr);
+  if(port == 0){
+      fprintf(stderr, "Could not initialize message...\n");
       exit(1);
-    }
-    fclose(fp);
-
-    // Initialize network and get port number
-    int port = message_init(stderr);
-    if(port == 0){
-        fprintf(stderr, "Could not initialize message...\n");
-        exit(1);
-    }
+  }
 
 
-    // Start message loop
-    message_loop(
-        gs, /* Argument passed to all callbacks */
-        0.0,/* Timeout specifier (0 in our case) */
-        NULL,/* Handle Timeout function pointer (NULL in our case) */
-        NULL, /* Handle stdin (NULL in our case) */
-        handleMessage
-    );
+  // Start message loop
+  message_loop(
+    gs, /* Argument passed to all callbacks */
+    0.0,/* Timeout specifier (0 in our case) */
+    NULL,/* Handle Timeout function pointer (NULL in our case) */
+    NULL, /* Handle stdin (NULL in our case) */
+    handleMessage
+  );
 
-    // Free all gamestate memory
-    game_close(gs);
-
-    // Free seed value
-    // free(seed);
+  // Free all gamestate memory
+  game_close(gs);
 }
