@@ -673,6 +673,7 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 			otherPlayer->x = tempx;
 			
 		}else{
+      player_grid[y][x] = master_grid[y][x];
 			player->x = x;
 			player->y = y;
 		}
