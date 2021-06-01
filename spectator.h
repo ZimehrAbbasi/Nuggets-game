@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "message.h"  /* message module */
+#include "message.h"    /* message module */
 
 /**
  * @brief: struct to represent a spectator.

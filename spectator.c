@@ -16,8 +16,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "message.h"    /* message module */
-#include "spectator.h"          /* self */
+#include "message.h"      /* message module */
+#include "spectator.h"    /* self */
 
 /**
  * @brief: constructor: allocates memory for the spectator struct
