@@ -34,10 +34,13 @@ make -C ../
 
 ## launch server
 port=$(./launchserver.sh ../maps/main.txt 257573)
-sed -e "s/^\'//" -e "s/\'$//" <<< "$port"
-printf "received port: $port \n"
+port="${port%\'}"
+port="${port#\'}"
+parsed=`tr -d "\'" <<< $port`
+# sed -e "s/^\'//" -e "s/\'$//" <<< "$port"
+printf "received port: $parsed \n"
 
-./runbots.sh "$port"
+./runbots.sh $parsed
 
 # ../server ../maps/main.txt 257573
 
