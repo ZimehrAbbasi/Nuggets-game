@@ -57,7 +57,10 @@ quicktest: $(PROG)
 	$(VALGRIND)	./server ./maps/main.txt 257573
 
 test: 
-	printf "More tests to come\n"
+	make -C tests test
+
+memcheck:
+	make -C tests memcheck
 
 ######## phony target ########
 .PHONY: all test clean
