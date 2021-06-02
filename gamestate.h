@@ -32,7 +32,7 @@
 typedef struct game {
   grid_t* masterGrid;           /* master grid */
   spectator_t* spectator;       /* single spectator -- is NULL if no spectator in game */ 
-  player_t* players[26];        /* array of players */
+  player_t** players;        /* array of players */
   int players_seen;             /* track players seen -- whether in game or left */
   gold_t* gameGold;             /* keep track of gold in the game */
 } gamestate_t;
