@@ -28,7 +28,7 @@
 /*********** file-local global variable ****************/
 /* Here is an example of a judicious use of a global variable.
  * This module stashes a file pointer(FP) for use in all the logging 
- * functions, so the module user need not pass the FP to every call.
+ * functions,.
  * This approach is unusual in that there is a copy of this variable local to 
  * *each file* that #includes "log.h" as well as to the module itself.
  * Each file that includes log.h will be able to log to its own file,

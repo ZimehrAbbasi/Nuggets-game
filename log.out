@@ -1,0 +1,305 @@
+START OF LOG
+message_init: ready at port '35554'
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+PLAY 123
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GRID 5 14
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+OK A
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |***.@****.|
+  |********.*|
+  |**********|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 0 250
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY H
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 2 2 250
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 2 250
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 6 8 248
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 8 248
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 9 17 242
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 17 242
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |@....****.|
+  |********.*|
+  |**********|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 17 233
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY J
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 4 21 233
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 21 233
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 4 25 229
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 25 229
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |.....****.|
+  |.*******.*|
+  |@*********|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 25 225
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY L
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 8 33 225
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 33 225
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 2 35 217
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 35 217
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 3 38 215
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 38 215
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 7 45 212
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 45 212
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 1 46 205
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 46 205
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 5 51 204
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 51 204
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 5 56 199
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 56 199
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 2 58 194
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 58 194
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 10 68 192
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 68 192
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |.....****.|
+  |.*******.*|
+  |.........@|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 68 182
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY J
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |.....****.|
+  |.*******.*|
+  |.........@|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 68 182
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY K
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 9 77 182
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 77 182
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |.....****@|
+  |.*******..|
+  |..........|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 77 173
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY H
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 8 85 173
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 85 173
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 15 100 165
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 100 165
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 13 113 150
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 113 150
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 7 120 137
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 120 137
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |@.........|
+  |.*******..|
+  |..........|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 120 130
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY j
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |..........|
+  |@*******..|
+  |..........|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 120 130
+message_loop: message ready on socket
+message_loop: FROM 127.0.0.1:59957
+message_loop: 1 lines:
+KEY L
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 13 133 130
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 133 130
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 15 148 117
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 148 117
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 3 151 102
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 151 102
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 8 159 99
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 159 99
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 21 180 91
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 180 91
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 19 199 70
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 199 70
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 51 250 51
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 250 51
+message_send: TO 127.0.0.1:59957
+message_send: 6 lines:
+DISPLAY
+  +----------+
+  |..........|
+  |.........@|
+  |..........|
+  +----------+
+message_send: TO 127.0.0.1:59957
+message_send: 1 lines:
+GOLD 0 250 0
+message_send: TO 127.0.0.1:59957
+message_send: 2 lines:
+QUIT GAME OVER:
+A   250    123
+
+END OF LOG

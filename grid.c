@@ -7,8 +7,9 @@
 #include <math.h>
 
 
-#include "support/file.h"         /* file operations */
-#include "support/message.h"      /* message operations */
+#include "file.h"         /* file operations */
+#include "message.h"      /* message operations */
+#include "log.h"
 #include "player.h"       /* player module */
 #include "gamestate.h"    /* gamestate module */
 #include "grid.h"         /* self */
@@ -65,7 +66,7 @@ grid_t* grid_init(FILE* mapfile) {
   }
 
   /* in case pointer to map file is NULL */
-  fprintf(stderr, "Attempt to create grid with a NULL name of map file. Stop.\n");
+  flog_v(stderr, "Attempt to create grid with a NULL name of map file. Stop.\n");
   return NULL;
 }
 
@@ -99,7 +100,7 @@ grid_initForPlayer(grid_t* masterGrid)
     /* return grid */
     return grid;
   }
-  fprintf(stderr, "Error: cannot init grid to match a NULL grid. Stop. \n");
+  flog_v(stderr, "Error: cannot init grid to match a NULL grid. Stop. \n");
   return NULL;
 }
 
@@ -638,7 +639,6 @@ bool grid_isPlayerVisible(gamestate_t* state, grid_t* Grid, player_t* player, pl
 			int y1 = player->y;
 			y1 -= 1;
 			while(grid_isRoomSpot(Grid, player->x, y1)){
-				printf("isplayer\n");
 				if(player->x == x && y == y1){
 					return true;
 				}
@@ -840,7 +840,7 @@ grid_getRows(grid_t* grid)
   if (grid != NULL) {
     return grid->rows;
   }
-  fprintf(stderr, "Grid is NULL. Stop.\n");
+  flog_v(stderr, "Grid is NULL. Stop.\n");
   return -1;
 }
 
@@ -850,7 +850,7 @@ grid_getColumns(grid_t* grid)
   if (grid != NULL) {
     return grid->cols;
   }
-  fprintf(stderr, "Grid is NULL. Stop.\n");
+  flog_v(stderr, "Grid is NULL. Stop.\n");
   return -1;
 }
 
@@ -860,6 +860,6 @@ grid_getGrid(grid_t* grid)
   if (grid != NULL) {
     return grid->g;
   }
-  fprintf(stderr, "Attempt to get grid representation in a NULL grid. Stop.\n");
+  flog_v(stderr, "Attempt to get grid representation in a NULL grid. Stop.\n");
   return NULL;
 }

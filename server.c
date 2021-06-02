@@ -65,14 +65,14 @@ parseArgs(const int argc, const char* argv[], int* seed)
 {
   // Check for illegal # of arguments
   if(argc != 3){
-    fprintf(stderr, "Illegal number of arguments...\n");
+    flog_v(stderr, "Illegal number of arguments...\n");
     exit(1);
   }
 
   // Make sure seed is a valid number
   for(int i = 0; i < strlen(argv[2]); i++){
     if(!isdigit(argv[2][i])){
-      fprintf(stderr, "Invalid seed...\n");
+      flog_v(stderr, "Invalid seed...\n");
       exit(1);
     }
   }
@@ -83,7 +83,7 @@ parseArgs(const int argc, const char* argv[], int* seed)
   // Try to open map file
   FILE* fp;
   if((fp = fopen(argv[1], "r")) == NULL){
-    fprintf(stderr, "Could not open file...\n");
+    flog_v(stderr, "Could not open file...\n");
     exit(1);
   }
   fclose(fp);
@@ -94,7 +94,7 @@ gamestate_t* game_init(FILE* mapFile)
 {
 
   if(mapFile == NULL){
-    fprintf(stderr, "Unable to open and read map file");
+    flog_v(stderr, "Unable to open and read map file\n");
     exit(1);
   }
     
@@ -104,7 +104,7 @@ gamestate_t* game_init(FILE* mapFile)
   // Condition: gamestate_init successfully created an object
   if(gameState == NULL){
     // If gamestate_init gives a NULL poiter, exit with error
-    fprintf(stderr, "Unable to allocate space for the game state.\n");
+    flog_v(stderr, "Unable to allocate space for the game state.\n");
     exit(1);
   }else{
     // Distribute gold throughout the grid
@@ -120,7 +120,7 @@ game_close(gamestate_t* gameState)
 {
 
   if(gameState == NULL){
-    fprintf(stderr, "Error: GameState Null...\n");
+    flog_v(stderr, "Error: GameState Null...\n");
     exit(1);
   } else {
     // Close game and free memory
@@ -177,7 +177,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
   /* if any pointer arguments are NULL, return true and terminate game loop. */
   if (arg == NULL || message == NULL) {
-    fprintf(stderr, "Entered message loop without gamestate. Fatal error occurred");
+    flog_v(stderr, "Entered message loop without gamestate. Fatal error occurred\n");
     return true;
   }
 
@@ -198,7 +198,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     if (numTokens == 0) {
       // Send malformed message back to client / spectator
       message_send(fromAddress, "ERROR malformed message\n");
-      fprintf(stderr, "Message detected with ZERO tokens. Stop.\n");
+      flog_v(stderr, "Message detected with ZERO tokens. Stop.\n");
       free((char*)message);
       free(message_copy);
       free(tokens);
@@ -385,7 +385,7 @@ randomInt(int lower, int upper)
     num += randomNumber % (upper - lower);
     return num;
   }
-  fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
+  flog_v(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
   return -1;
 }
 
@@ -409,8 +409,14 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
 static void
 reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   message_send(fromAddress, "ERROR malformed message\n");
-  fprintf(stderr, "'%s' %s \n", givenInput, message);
-  fprintf(stderr, "Invalid action sequence detected. Stop.\n");
+
+  char* completeErrorMessage = calloc(1, strlen(givenInput) + strlen(message) + 10);
+  sprintf(completeErrorMessage, "'%s' %s \n", givenInput, message);
+  
+  flog_s(stderr, "%s", completeErrorMessage);
+  flog_v(stderr, "Invalid action sequence detected. Stop.\n");
+  
+  free(completeErrorMessage);
 }
 
 static void
@@ -437,7 +443,7 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 
 	// If cant find player but can find spectator
 	if (player == NULL &&  message_eqAddr(fromAddress, state->spectator->address) ){
-		fprintf(stderr, "Couldn't find a matching player for key press");
+		flog_v(stderr, "Couldn't find a matching player for key press\n");
     if (pressedKey == 'Q'){
       handleSpectatorQuit(state, fromAddress);
     }
@@ -536,7 +542,7 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
      no player was found. 
      print to stderr. */
   else {
-    fprintf(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
+    flog_v(stderr, "No matching player OR spectator found for an incoming QUIT message.\n");
   }
 }
 
@@ -796,7 +802,7 @@ main(const int argc, const char* argv[])
   // Initialize network and get port number
   int port = message_init(stderr);
   if(port == 0){
-      fprintf(stderr, "Could not initialize message...\n");
+      flog_v(stderr, "Could not initialize message...\n");
       exit(1);
   }
 
@@ -812,4 +818,6 @@ main(const int argc, const char* argv[])
 
   // Free all gamestate memory
   game_close(gs);
+
+  flog_done(stderr);
 }

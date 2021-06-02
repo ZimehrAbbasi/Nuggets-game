@@ -21,6 +21,7 @@
 #include "gold.h"       /* gold module */
 #include "spectator.h"  /* spectator module */
 #include "gamestate.h"  /* self */
+#include "log.h"
 
 /********* static function prototypes **********/
 static void gamestate_initPlayers(gamestate_t* state);
@@ -45,7 +46,7 @@ gamestate_init(FILE* mapFile)
 {
   gamestate_t* state = malloc(sizeof(*state));
   if (state == NULL) {
-    fprintf(stderr, "Error allocating memory for gamestate.\n");
+    flog_v(stderr, "Error allocating memory for gamestate.\n");
     return NULL;
   }
   // Initialize players seen
@@ -276,13 +277,13 @@ gamestate_findPlayerByAddress(gamestate_t* state, addr_t address)
     }
 
     /* if no player found, return NULL */
-    fprintf(stderr, "No player found matching given address.\n");
+    flog_v(stderr, "No player found matching given address.\n");
     return NULL;
   }
 
   /* if gamestate is NULL, 
      print error message and return NULL */
-  fprintf(stderr, "Attempt to find player in NULL gamestate. Stop.\n");
+  flog_v(stderr, "Attempt to find player in NULL gamestate. Stop.\n");
   return NULL;
 }
 

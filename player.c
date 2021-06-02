@@ -18,6 +18,7 @@
 #include "message.h"  /* message module */
 #include "grid.h"     /* grid module */
 #include "player.h"   /* self */
+#include "log.h"
 
 
 /**
@@ -77,7 +78,7 @@ player_addGold(player_t* player, int numGold)
     player->gold += numGold;
   }
   /* print error message IF player is NULL */
-  fprintf(stderr, "Attempt to assign gold to NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to assign gold to NULL player. Stop.\n");
 }
 
 /**
@@ -100,7 +101,7 @@ player_getGold(player_t* player)
     return player->gold;
   }
   /* print error message if NULL player */
-  fprintf(stderr, "Attempt to get gold from NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to get gold from NULL player. Stop.\n");
   return -1;
 }
 
@@ -128,7 +129,7 @@ player_move(player_t* player, int dx, int dy)
     return;
   }
   /* if NULL player, print error message. */
-  fprintf(stderr, "Attempt to move NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to move NULL player. Stop.\n");
 }
 
 
@@ -149,7 +150,7 @@ player_getLetter(player_t* player)
     return player->letter;
   }
   /* if player is NULL, print error message */
-  fprintf(stderr, "Attempt to get letter of NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to get letter of NULL player. Stop.\n");
   return -1;
 }
 
@@ -173,7 +174,7 @@ player_getName(player_t* player)
     return player->name;
   }
   /* print error message if player is NULL, return NULL */
-  fprintf(stderr, "Attempt to get name of NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to get name of NULL player. Stop.\n");
   return NULL;
 }
 
@@ -193,7 +194,7 @@ player_getX(player_t* player)
   if (player != NULL) {
     return player->x;
   }
-  fprintf(stderr, "Attempt to get coordinates of NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to get coordinates of NULL player. Stop.\n");
   return -1;
 }
 
@@ -213,7 +214,7 @@ player_getY(player_t* player)
   if (player != NULL) {
     return player->y;
   }
-  fprintf(stderr, "Attempt to get coordinates of NULL player. Stop.\n");
+  flog_v(stderr, "Attempt to get coordinates of NULL player. Stop.\n");
   return -1;
 }
 
