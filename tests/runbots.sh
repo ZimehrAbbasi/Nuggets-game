@@ -13,7 +13,9 @@
 # echo "Adding spectator... to port $@"
 # prof/player localhost $@ 2> /dev/null &
 
-# add 25 background bots
+# add 10 background bots
+trap "kill 0" EXIT
+
 for i in {1..10}; do
 
   # add new bot
@@ -25,3 +27,5 @@ done
 # add a spectator
 echo "Adding spectator... to port $1" &
 prof/player localhost $1 2> /dev/null
+
+wait

@@ -17,8 +17,6 @@ function runserver()
   local portnum=`sed -n '${s/.* //; p}' temp.out`
   rm -f temp.out
   echo "$portnum"
-  # sed -e "s/^\'//" -e "s/\'$//" <<< "$portnum"
-  # echo "$portnum"
 }
 
 runserver "$@"
