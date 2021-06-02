@@ -20,6 +20,7 @@
 #include "grid.h"       /* grid module */
 #include "player.h"     /* player module */
 #include "gold.h"       /* self */
+#include "log.h"
 
 
 /******** static function prototypes *******/
@@ -70,7 +71,7 @@ gold_init(int numPiles)
     /* return created struct */
     return gold;
   }
-  fprintf(stderr, "Attempt to allocate a negative number of gold piles. Stop.\n");
+  flog_v(stderr, "Attempt to allocate a negative number of gold piles. Stop.\n");
   return NULL; 
 }
 
@@ -200,6 +201,6 @@ randomInt(int lower, int upper)
   }
 
   /* if bounds are invalid, print error message, return -1 */
-  fprintf(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
+  flog_v(stderr, "Attempt to generate a number with invalid bounds. Stop.\n");
   return -1;
 }

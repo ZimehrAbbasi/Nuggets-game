@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include "message.h"      /* message module */
+#include "log.h"
 #include "spectator.h"    /* self */
 
 /**
@@ -42,7 +43,7 @@ spectator_new(addr_t address)
   }
   /* if error occurred allocating memory, 
      print error message and return NULL */
-  fprintf(stderr, "Error allocating memory for spectator.");
+  flog_v(stderr, "Error allocating memory for spectator.\n");
   return NULL;
 }
 
