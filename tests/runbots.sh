@@ -19,13 +19,13 @@ trap "kill 0" EXIT
 for i in {1..10}; do
 
   # add new bot
-  prof/player localhost $1 botbg &> /dev/null &
+  ~/cs50-dev/shared/nuggets/linux/player localhost $1 botbg &> /dev/null &
 
   echo "Added bot number $i!"
 done
 
 # add a spectator
 echo "Adding spectator... to port $1" &
-prof/player localhost $1 2> /dev/null
+~/cs50-dev/shared/nuggets/linux/player localhost $1 2> /dev/null
 
 wait
