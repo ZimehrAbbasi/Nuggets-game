@@ -59,6 +59,9 @@ quicktest: $(PROG)
 test: 
 	make -C tests test
 
+memcheck:
+	make -C tests memcheck
+
 ######## phony target ########
 .PHONY: all test clean
 
