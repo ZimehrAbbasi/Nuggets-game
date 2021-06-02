@@ -230,8 +230,11 @@ grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
 bool
 grid_isWall(grid_t* grid, int x, int y)
 {
-  char **master = grid->g;
-  return ( master[y][x] == '|' || 
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return true;
+  	}
+  	char **master = grid->g;
+  	return ( master[y][x] == '|' || 
            master[y][x] == '-' || 
            master[y][x] == '+' || 
            master[y][x] == ' ');
@@ -243,6 +246,9 @@ grid_isWall(grid_t* grid, int x, int y)
 bool
 grid_isPlayer(grid_t* grid, int x, int y)
 {
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return false;
+  	}
   char **master = grid->g;
   return isalpha(master[y][x]);
     // {
@@ -254,6 +260,9 @@ grid_isPlayer(grid_t* grid, int x, int y)
 bool
 grid_isGold(grid_t* grid, int x, int y)
 {
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return false;
+  	}
   	char **master = grid->g;
   	return master[y][x] == '*';
     // {
@@ -265,7 +274,9 @@ grid_isGold(grid_t* grid, int x, int y)
 bool
 grid_isPassage(grid_t* grid, int x, int y)
 {
-
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return false;
+  	}
     char **master = grid->g;
     return master[y][x] == '#';
  
@@ -276,12 +287,18 @@ grid_isPassage(grid_t* grid, int x, int y)
 
 bool
 grid_isSpace(grid_t* grid, int x, int y) {
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return false;
+  	}
   char **master = grid->g;
   return master[y][x] == '.';
 }
 
 bool
 grid_isRoomSpot(grid_t* grid, int x, int y){
+	if(x < 0 || y < 0|| x >= grid->cols || y >= grid->rows){
+    	return false;
+  	}
 	if(grid_isWall(grid, x, y) || grid_isPassage(grid, x, y)){
 		return false;
 	}

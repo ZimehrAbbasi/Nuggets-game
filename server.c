@@ -60,6 +60,13 @@ static void handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey);
 static void playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold);
 static void endGame(gamestate_t* state);
 
+/**
+ * @brief parses arguments
+ * 
+ * Inputs:
+ * @param argc: # of command line arguments
+ * @param argv: char* array of command line arguments
+ */
 void 
 parseArgs(const int argc, const char* argv[], int* seed)
 {
@@ -89,6 +96,16 @@ parseArgs(const int argc, const char* argv[], int* seed)
   fclose(fp);
 }
 
+/**
+ * @brief constructor. Creates the gamestate object
+ * 
+ * Inputs:
+ * @param mapFile: a FILE pointer to the opened file containing map data.
+ * 
+ * Returns:
+ * @return gamestate_t*: the initialized game instance.
+ * @return NULL: an error occured allocating memory for the gamestate.
+ */
 static
 gamestate_t* game_init(FILE* mapFile)
 {
@@ -115,6 +132,13 @@ gamestate_t* game_init(FILE* mapFile)
   return gameState;
 }
 
+/**
+ * @brief closer function: frees all gamestate_t associated data
+ * 
+ * Inputs:
+ * @param gameState: the gamestate representation of the game
+ * 
+ */
 static void
 game_close(gamestate_t* gameState)
 {
@@ -128,7 +152,15 @@ game_close(gamestate_t* gameState)
   }
 }
 
-
+/**
+ * @brief Splits given string into char* array of 'tokens'
+ * 
+ * Inputs:
+ * @param message
+ * 
+ * Returns:
+ * @return char**: An array of strings (each string is  a 'token').
+ */
 char**
 tokenize(char* message)
 {
@@ -157,6 +189,13 @@ tokenize(char* message)
   return tokens;
 }
 
+/**
+ * @brief deletes array of tokens (created by tokenize earlier)
+ * 
+ * Inputs:
+ * @param parsedMessage: The string array of tokens
+ * 
+ */
 void
 deleteTokens(char** parsedMessage)
 {
@@ -171,7 +210,18 @@ deleteTokens(char** parsedMessage)
     free(parsedMessage);
   }
 }
-
+/**
+ * @brief Message callback: tells server what to do with an incoming message
+ * 
+ * Inputs:
+ * @param arg: a pointer to the server's `gamestate` object
+ * @param fromAddress: an addr_t representing the sending device
+ * @param message: a string with the message text from the sender
+ * 
+ * Returns:
+ * @return gamestate_t*: the initialized game instance.
+ * @return NULL: an error occured allocating memory for the gamestate.
+ */
 bool
 handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
@@ -350,6 +400,14 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 
 /**************** Static Functions ******************/
 
+/**
+ * @brief Updates player in gamestate and sends GOLD messages
+ * 
+ * Inputs:
+ * @param state: the servers `gamestate` object
+ * @param player: the player who just picked up gold
+ * @param justCollectedGold: the amount of gold the player picked up
+ */
 static void
 playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold){
   int currentPlayerGold = player->gold;
@@ -389,6 +447,14 @@ randomInt(int lower, int upper)
   return -1;
 }
 
+/**
+ * @brief constructor.
+ * 
+ * Inputs:
+ * @param state: the server's `gamestate` object
+ * @param fromAddress: the address of the joining spectator
+ * 
+ */
 static void
 addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
   /* add spectator to game */
@@ -406,6 +472,15 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
   spectator_send(state->spectator, initMessage);
 }
 
+/**
+ * @brief logs malformed messages
+ * 
+ * Inputs:
+ * @param fromAddress: the address of the sending client
+ * @param givenInput: the message the client sent
+ * @param message: the message to log to stderr
+ * 
+ */
 static void
 reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   message_send(fromAddress, "ERROR malformed message\n");
@@ -419,6 +494,13 @@ reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   free(completeErrorMessage);
 }
 
+/**
+ * @brief takes care of when a spectator quits the game
+ * 
+ * Inputs:
+ * @param state: the server's gamestate
+ * @param fromAddress: the address of the leaving spectator
+ */
 static void
 handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
   /* get spectator */
@@ -435,6 +517,14 @@ handleSpectatorQuit(gamestate_t* state, addr_t fromAddress){
   state->spectator = NULL;
 }
 
+/**
+ * @brief handles every possible key press from spectators and players
+ * 
+ * Inputs:
+ * @param state: the server's gamestate
+ * @param fromAddress: the address of the client who send a key
+ * @param pressedKey: the key that was pressed
+ */
 static void
 handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
 	// Get player object from address
@@ -523,6 +613,13 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
     }
 }
 
+/**
+ * @brief handles the case when a player quits the game
+ * 
+ * Inputs:
+ * @param gamestate: the server's gamestate
+ * @param fromAddress: the address of the quitting player
+ */
 static void
 handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   /* We don't actually delete the player from the game 
@@ -546,6 +643,13 @@ handlePlayerQuit(gamestate_t* state, addr_t fromAddress){
   }
 }
 
+/**
+ * @brief Sends the DISPLAY message to the spectator
+ * 
+ * Inputs:
+ * @param state: the server's gamestate
+ * @param spectator: a pointer to the spectator to send to
+ */
 static void
 displayForSpectator(gamestate_t* state, spectator_t* spectator){
   // Convert master grid to a string
@@ -565,6 +669,16 @@ displayForSpectator(gamestate_t* state, spectator_t* spectator){
   free(masterGridAsString);
 }
 
+/**
+ * @brief sends the display method to the player.
+ * 
+ * Inputs:
+ * @
+ * 
+ * Returns:
+ * @return gamestate_t*: the initialized game instance.
+ * @return NULL: an error occured allocating memory for the gamestate.
+ */
 static void
 displayForPlayer(gamestate_t* state, player_t* player){
   // Update player's visible grid
@@ -661,11 +775,8 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 			int tempx = player->x;
 			int tempy = player->y;
 
-			player_grid[player->y][player->x] = '.';
-			master_grid[player->y][player->x] = '.';
-
-			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
-			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = '.';
+			player_grid[player->y][player->x] = master_grid[player->y][player->x];
+			otherPlayer_grid[otherPlayer->y][otherPlayer->x] = master_grid[otherPlayer->y][otherPlayer->x];
 
 			player->y = otherPlayer->y;
 			player->x = otherPlayer->x;

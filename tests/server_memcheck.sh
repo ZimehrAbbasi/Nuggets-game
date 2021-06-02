@@ -36,4 +36,4 @@ $VALGRIND ../server ../maps/main.txt WRONGSEED
 # valid call
 
 ## launch server
-$VALGRIND ../server ../maps/main.txt 257573
+$VALGRIND ../server ../maps/challenge.txt 257573

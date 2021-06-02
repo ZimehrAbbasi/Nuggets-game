@@ -33,9 +33,8 @@ make -C ../
 # valid call
 
 ## launch server
-trap "kill 0" EXIT
 
-port=$(./launchserver.sh ../maps/main.txt 257573)
+port=$(./launchserver.sh ../maps/small.txt 257573)
 port="${port%\'}"
 port="${port#\'}"
 parsed=`tr -d "\'" <<< $port`
@@ -43,9 +42,5 @@ parsed=`tr -d "\'" <<< $port`
 printf "received port: $parsed \n"
 
 ./runbots.sh $parsed
-
-wait
-
-# ../server ../maps/main.txt 257573
 
 
