@@ -8,8 +8,22 @@ Each player is randomly dropped into a room when joining the game.
 Players move about, collecting nuggets when they move onto a pile.
 When all gold nuggets are collected, the game ends and a summary is printed.
 
+***
+
 ## Materials provided
 
 See the [support library](support/README.md) for some useful modules.
 
 See the [maps](maps/README.md) for some draft maps.
+
+***
+
+## Compiling
+
+To build, run `make`.
+
+To test with outomated players, run `make test`.
+
+To clean up, run `make clean`.
+
+To test for memory leaks, run `make memcheck`. Note: This requires you to either manually add bots to the game or call [./tests/runbots.sh](./tests/runbots.sh) with the port number that the server instance returned.
