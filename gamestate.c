@@ -43,12 +43,13 @@ static void gamestate_playersDeleteHelper(gamestate_t* state);
 gamestate_t*
 gamestate_init(FILE* mapFile)
 {
-  gamestate_t* state = malloc(sizeof(gamestate_t));
+  gamestate_t* state = malloc(sizeof(*state));
   if (state == NULL) {
     fprintf(stderr, "Error allocating memory for gamestate.\n");
     return NULL;
   }
-
+  // Initialize players seen
+  state->players_seen = 0;
   // Initialize grid field
   gamestate_initGrid(state, mapFile);
 
@@ -71,7 +72,7 @@ gamestate_init(FILE* mapFile)
  */
 static void 
 gamestate_initPlayers(gamestate_t* state){
-  *(state->players) = malloc(sizeof(player_t) * 26);
+  state->players = calloc(26, sizeof(player_t));
 }
 
 /**
@@ -122,6 +123,8 @@ gamestate_playersDeleteHelper(gamestate_t* state){
     // Run player_delete on current player
     player_delete(currentPlayer);
   }
+
+  free(state->players);
 }
 
 /**

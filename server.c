@@ -139,7 +139,7 @@ tokenize(char* message)
   int pos = 0;
 
   /* allocate memory for char pointers, max = strlen */
-  char** tokens = calloc(strlen(message), sizeof(char*));
+  char** tokens = calloc(strlen(message), sizeof(*tokens));
 
   if (tokens == NULL) {
     return NULL;
@@ -150,7 +150,7 @@ tokenize(char* message)
   /* while next token is not NULL 
      save it and get next token */
   while (token != NULL) {
-    tokens[pos++] = malloc(sizeof(token));
+    tokens[pos++] = malloc(sizeof(token)+1);
     strcpy(tokens[pos-1], token);
     token = strtok(NULL, " ");
   }
@@ -184,7 +184,7 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   /* convert arg back to gamestate */
   gamestate_t* state = (gamestate_t*) arg;
   /* get tokens in message */
-  char* message_copy = calloc(1, strlen(message));
+  char* message_copy = calloc(strlen(message)+1, sizeof(*message_copy));
   strcpy(message_copy, message);
   char** tokens;
   if ( (tokens = tokenize(message_copy)) != NULL) {
@@ -545,7 +545,6 @@ displayForSpectator(gamestate_t* state, spectator_t* spectator){
   // Convert master grid to a string
   grid_t* entireGrid = state->masterGrid;
   char* masterGridAsString = grid_toString(state, entireGrid);
-  printf("Length of master grid string in spectator: %ld", strlen(masterGridAsString));
   
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
@@ -696,10 +695,11 @@ static void endGame(gamestate_t* state){
     free(tempBuffer);
   }
 
-  // Send message to all players and the specatator
+  // Send message to all players and the specatator and then free them
   for(int i = 0; i < numPlayers; i++){
     player_send(allPlayers[i], endMessage);
   }
+
   spectator_send(state->spectator, endMessage);
 
   // Free ending message
@@ -778,10 +778,6 @@ sendPlayerOK(player_t* player){
 int
 main(const int argc, const char* argv[])
 {
-
-  fprintf(stdout, "GOT HERE!");
-
-
   // Parse arguments  and use seed value
   int seed = 0;
   parseArgs(argc, argv, &seed);
