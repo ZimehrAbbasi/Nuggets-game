@@ -10,20 +10,20 @@
 
 
 # add a spectator
-echo "Adding spectator..."
+echo "Adding spectator... to port $@"
 prof/player localhost $@ 2> /dev/null &
 
 # add 25 background bots
 for i in {1..10}; do
 
   # add new bot
-  prof/player localhost $@ botbg &> /dev/null &
+  prof/player localhost $1 botbg &> /dev/null &
 
   echo "Added bot number $i!"
 done
 
 # add a spectator
-# echo "Adding spectator..." &
-prof/player localhost $@ 2> /dev/null
+echo "Adding spectator..." &
+prof/player localhost $1 2> /dev/null
 
 

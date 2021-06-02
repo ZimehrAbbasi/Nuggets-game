@@ -646,6 +646,7 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 			gameGold->index += 1;
 				
 			master_grid[player->y][player->x] = '.';
+      player_grid[player->y][player->x] = '.';
 
 		}else if(otherPlayer != NULL){
 
