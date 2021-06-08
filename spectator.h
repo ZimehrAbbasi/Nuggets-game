@@ -29,6 +29,9 @@
 typedef struct spectator {
   addr_t address;
 } spectator_t;
+/* 
+  STYLE: ideally this would have been an opaque type
+ */
 
 
 /**

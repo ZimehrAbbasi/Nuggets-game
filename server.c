@@ -76,6 +76,11 @@ parseArgs(const int argc, const char* argv[], int* seed)
     exit(1);
   }
 
+  /* 
+  STYLE: Recall the trick we learned:
+  https://www.cs.dartmouth.edu/~cs50/Lectures/units/examples/atoi.c
+  */
+
   // Make sure seed is a valid number
   for(int i = 0; i < strlen(argv[2]); i++){
     if(!isdigit(argv[2][i])){
@@ -105,6 +110,9 @@ parseArgs(const int argc, const char* argv[], int* seed)
  * Returns:
  * @return gamestate_t*: the initialized game instance.
  * @return NULL: an error occured allocating memory for the gamestate.
+ */
+/* 
+  STYLE:   Please follow CS50 camelCase naming convention for variable and function names.  We only use underscore when prefixing with the module name.
  */
 static
 gamestate_t* game_init(FILE* mapFile)
@@ -182,7 +190,7 @@ tokenize(char* message)
   /* while next token is not NULL 
      save it and get next token */
   while (token != NULL) {
-    tokens[pos++] = malloc(sizeof(token)+1);
+    tokens[pos++] = malloc(sizeof(token)+1); // STYLE: I think you meant strlen(token)
     strcpy(tokens[pos-1], token);
     token = strtok(NULL, " ");
   }
@@ -222,6 +230,11 @@ deleteTokens(char** parsedMessage)
  * @return gamestate_t*: the initialized game instance.
  * @return NULL: an error occured allocating memory for the gamestate.
  */
+/* 
+  STYLE:   Break up this function so each case is a call to a message-specific handleXYZ function.
+  Recall the hint about breaking up large code blocks:
+  https://github.com/cs50spring2021/nuggets-info#break-down-big-functions
+ */
 bool
 handleMessage(void* arg, const addr_t fromAddress, const char* message)
 {
@@ -236,6 +249,11 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
   /* get tokens in message */
   char* message_copy = calloc(strlen(message)+1, sizeof(*message_copy));
   strcpy(message_copy, message);
+/* 
+  STYLE: there's no need to tokenize the messages in our protocol;
+  Recall the hint about parsing messages:
+  https://github.com/cs50spring2021/nuggets-info#parsing-messages
+ */
   char** tokens;
   if ( (tokens = tokenize(message_copy)) != NULL) {
 
@@ -284,6 +302,9 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
         }
         break;
       case 'Q':
+/* 
+  STYLE: QUIT is not a valid message for server to receive
+ */
         /* routine for removing player */
         if (numTokens == 0 && (strcmp(tokens[0], "QUIT") == 0) ) {
 
@@ -328,6 +349,9 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
               strcat(playerName, temp);
             }
           }
+/* 
+  STYLE: create helper function to pick a random empty room spot, and use it for both gold and player
+ */
 
           /* generate random x,y values 
              and check for validity 
@@ -372,6 +396,10 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
     free(message_copy);
   }
 
+  /* 
+  STYLE: avoid sending DISPLAY and GOLD messages unless something actually happened in the game.
+   */
+
   // Send updated game state to spectator
   displayForSpectator(state, state->spectator);
 
@@ -399,6 +427,9 @@ handleMessage(void* arg, const addr_t fromAddress, const char* message)
 }
 
 /**************** Static Functions ******************/
+/* 
+  STYLE: there were some above, too
+ */
 
 /**
  * @brief Updates player in gamestate and sends GOLD messages
@@ -418,6 +449,9 @@ playerPickedUpGold(gamestate_t* state, player_t* player, int justCollectedGold){
   sprintf(goldCollectedMessage, "GOLD %d %d %d", justCollectedGold, currentPlayerGold, goldLeftInGame);
   player_send(player, goldCollectedMessage);
 
+/* 
+  STYLE: you send gold here... but also above in every handleMessage
+ */
   // Send GOLD messages to all players and spectators
   sendGoldToPlayers(state);
   sendGoldToSpectator(state);
@@ -464,6 +498,9 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
   int rows = state->masterGrid->rows;
   int cols = state->masterGrid->cols;
 
+/* 
+  STYLE: avoid using "magic numbers", i.e., literal integer constants like [100] here.  Such practice is risky because the code is less readable and more fragile to future changes.  In this case, use message_MaxBytes.
+ */
   /* generate init message */
   char initMessage[100];                            /* No need to malloc; only used once */
   sprintf(initMessage, "GRID %d %d", rows, cols);
@@ -484,6 +521,9 @@ addSpectatorToGame(gamestate_t* state, addr_t fromAddress){
 static void
 reportMalformedMessage(addr_t fromAddress, char* givenInput, char* message){
   message_send(fromAddress, "ERROR malformed message\n");
+/* 
+  STYLE:   When you need a string variable of a fixed size, there is no need for malloc.  Here use [message_MaxBytes]
+ */
 
   char* completeErrorMessage = calloc(1, strlen(givenInput) + strlen(message) + 10);
   sprintf(completeErrorMessage, "'%s' %s \n", givenInput, message);
@@ -565,6 +605,9 @@ handleKey(gamestate_t* state, addr_t fromAddress, char pressedKey){
     case 'n': 
         movePlayer(state, player, player->x+1, player->y+1);
         break;
+/* 
+  STYLE: a sprint should stop not only when it hits a wall, but also the edge of the grid.  does isWall test for that?
+ */
     case 'L': 
         while(!grid_isWall(Grid, player->x+1, player->y)){
             movePlayer(state, player, player->x+1, player->y);
@@ -655,7 +698,11 @@ displayForSpectator(gamestate_t* state, spectator_t* spectator){
   // Convert master grid to a string
   grid_t* entireGrid = state->masterGrid;
   char* masterGridAsString = grid_toString(state, entireGrid);
-  
+
+  /* 
+   STYLE: For messages, there is no need for malloc.  Just declare char message[message_MaxBytes].
+   */
+
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(masterGridAsString)) + 10 );
   
@@ -688,6 +735,8 @@ displayForPlayer(gamestate_t* state, player_t* player){
   // Covert visible grid to string
   char* playerGridAsString = grid_toStringForPlayer(state, player);
   
+  /* STYLE: For messages, there is no need for malloc.  Just declare char message[message_MaxBytes].
+   */
   // Create message header
   char* messageHeader = malloc((sizeof(char) * strlen(playerGridAsString)) + 10 );
   strcpy(messageHeader, "DISPLAY\n");
@@ -703,6 +752,10 @@ displayForPlayer(gamestate_t* state, player_t* player){
   free(messageHeader);
   free(playerGridAsString);
 }
+
+/* 
+  STYLE: missing comments
+ */
 
 static bool
 isGameEnded(gamestate_t* state){
@@ -722,6 +775,10 @@ isGameEnded(gamestate_t* state){
   }
 }
 
+/* 
+  STYLE: missing comments
+ */
+
 void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 
 	if(gameState == NULL){
@@ -738,6 +795,10 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
   	char** player_grid = player->grid->g;
 	char** master_grid = Grid->g;
 	int* gold_array = gameGold->goldCounter;
+
+/* 
+  STYLE: why is a loop needed here?
+ */
 
 	player_t **players = gameState->players;
 	player_t* otherPlayer = NULL;
@@ -791,6 +852,12 @@ void movePlayer(gamestate_t* gameState, player_t* player, int x, int y){
 		}
 	}
 }
+
+/* 
+  STYLE:   Missing paragraph comment.
+  Also: What if calloc fails (returns NULL)?
+  Also:   For messages, there is no need for malloc.  Just declare char message[message_MaxBytes].
+ */
 
 static void endGame(gamestate_t* state){
   // Get array of players and length of players array
@@ -892,6 +959,10 @@ sendPlayerOK(player_t* player){
   // Send message to player
   player_send(player, okMessage);
 }
+
+/* 
+  STYLE: CS50 style places main() at the top of all functions in a file.
+ */
 
 int
 main(const int argc, const char* argv[])

@@ -11,6 +11,12 @@
  * 
  */
 
+/* 
+  STYLE: very nice module, but other modules (like grid) 'break' your
+  API here... they don't call your getters, they just peek directly
+  inside the struct.
+ */
+
 #ifndef __PLAYER_H
 #define __PLAYER_H
 
@@ -38,6 +44,9 @@ typedef struct player {
   grid_t* grid;
   bool hasQuit;
 } player_t;
+/* 
+  STYLE: to truly 'abstract' the player, this should be opaque type.
+ */
 
 /**
  * @brief: constructor

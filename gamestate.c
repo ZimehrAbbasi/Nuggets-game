@@ -66,6 +66,11 @@ gamestate_init(FILE* mapFile)
   return state;
 }
 
+/* 
+  STYLE:   Your code below uses "magic numbers", i.e., literal integer constants that just happen to be the right number for something, but often without explanation.  Such practice is risky because the code is less readable and more fragile to future changes.  Define a named constant for such numbers, or find another approach.
+
+ */
+
 /**
  * @brief: initializes array to hold players in the game. 
  * This function allocates memory which must be free'd later
@@ -152,6 +157,9 @@ gamestate_playersDeleteHelper(gamestate_t* state){
 player_t**
 gamestate_getPlayers(gamestate_t* state)
 {
+/* 
+  STYLE:   Be defensive here, check parameters before using them.
+ */
   return state->players;
 }
 

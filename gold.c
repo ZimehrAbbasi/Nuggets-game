@@ -65,6 +65,11 @@ gold_init(int numPiles)
     /* allocate remainder to last pile (to add up to 250) */
     gold->goldCounter[numPiles - 1] = remainder;
 
+/* 
+  STYLE: it would be easier to count down from the number of piles,
+  than to count up from zero.  Counting down is easy, because you can
+  just compare against 0 to find out whether you've reached the end.
+ */
     /* initialize index in piles to ZERO */
     gold->index = 0;
 
@@ -134,6 +139,11 @@ gold_assign(gold_t* gold, player_t* player)
  * 
  * Returns: None.
  */
+/* 
+  STYLE: the following code is repeated once or twice
+  elsewhere. factor it out as a helper function.
+ */
+
 void
 gold_distribute(grid_t* grid, gold_t* gold)
 {

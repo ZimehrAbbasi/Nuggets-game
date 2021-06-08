@@ -1,3 +1,6 @@
+/* 
+  STYLE: missing file-header and function-header comments
+ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -22,6 +25,9 @@ grid_t* grid_init(FILE* mapfile) {
     
     /* make sure we return to start of file in case of prior reads */
     rewind(mapfile);
+/* 
+  STYLE: rewind is not needed here because numLines does it
+ */
 
     int rows = file_numLines(mapfile);
     char* firstLine = file_readLine(mapfile);
@@ -47,6 +53,12 @@ grid_t* grid_init(FILE* mapfile) {
 
     /* create map representation */
     grid->g = calloc(1, (rows+1) * sizeof(char*));
+
+    /* 
+  STYLE: instead of malloc'ing each row (string), then reading a
+  string, then copying the string, just save the pointer you get ack
+  from readLine as temp[i]; after all, it is a malloc'd string too!
+    */
 
     /* allocate rows */
     char** temp = grid->g;
@@ -172,6 +184,10 @@ char* grid_toStringForPlayer(gamestate_t* state, player_t* current_player){
   return stringifiedGrid;
 }
 
+/* 
+  STYLE: seems redundant with code above
+ */
+
 char*
 grid_toString(gamestate_t* state, grid_t* grid)
 {
@@ -205,6 +221,9 @@ grid_toString(gamestate_t* state, grid_t* grid)
   return stringifiedGrid;
 }
 
+/* 
+  STYLE: seems redundant with some code above
+ */
 char* 
 grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
 {
@@ -227,6 +246,17 @@ grid_masterGridToString(grid_t* grid, gamestate_t* gamestate)
   return map;
 }
 
+/* 
+  STYLE: Define named constants for all the grid characters (like
+  walls, spots, and gold) rather than sprinkling code with character
+  constants.  A named constant will make the code more readable, and
+  more adaptable if there is a later need to change characters.
+ */
+
+
+/* 
+  STYLE: function does more than its name implies
+ */
 bool
 grid_isWall(grid_t* grid, int x, int y)
 {
@@ -326,6 +356,10 @@ static int quadrant(int x1, int y1, int x2, int y2){
 	}
 }
 
+/* 
+  STYLE: this function is extremely long and complex; refactor and
+         simplify.  and comment!
+ */
 
 void grid_calculateVisibility(grid_t* Grid, player_t* player){
     char **master_grid = Grid->g;
@@ -609,6 +643,10 @@ void grid_calculateVisibility(grid_t* Grid, player_t* player){
     }
 
 }
+
+/* 
+  STYLE: ugh, nearly repeats the above code... leaving reader to wonder what is different and why?
+ */
 
 bool grid_isPlayerVisible(gamestate_t* state, grid_t* Grid, player_t* player, player_t* player2){
     double slope;

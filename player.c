@@ -43,6 +43,9 @@
 player_t* 
 player_new(char letter, char* name, addr_t address, int x, int y, grid_t* grid) 
 {
+/* 
+  STYLE: what if these malloc's fail?
+ */
   /* allocate memory for struct */
   player_t* player = malloc(sizeof(player_t));
 
